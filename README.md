@@ -133,26 +133,33 @@ pnpm dev
 - [x] 일정 삭제 (작성자만)
 - [x] 대시보드 다가오는 일정 위젯
 
-### Phase 6: 배포 및 최적화
-- [ ] GitHub Pages 배포 설정
-- [ ] 성능 최적화
-- [ ] SEO 설정
+### Phase 6: 배포 및 최적화 (완료)
+- [x] GitHub Pages 배포 설정 (GitHub Actions 워크플로우)
+- [x] 번들 최적화 (Firebase/Chart.js 청크 분리)
+- [x] SPA 라우팅 지원 (404.html fallback)
+- [x] SEO 기본 설정 (title, meta description)
 
 ## 배포
 
-### GitHub Pages 배포
+### GitHub Pages 자동 배포
 
+`main` 브랜치에 push하면 GitHub Actions가 자동으로 빌드 및 배포합니다.
+
+**사전 설정:**
+1. Repository Settings > Pages > Source: **GitHub Actions** 선택
+2. Repository Settings > Secrets and variables > Actions에 Firebase 환경 변수 추가:
+   - `NUXT_PUBLIC_FIREBASE_API_KEY`
+   - `NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+   - `NUXT_PUBLIC_FIREBASE_PROJECT_ID`
+   - `NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+   - `NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+   - `NUXT_PUBLIC_FIREBASE_APP_ID`
+
+**수동 빌드:**
 ```bash
-# 정적 사이트 생성
 pnpm generate
-
-# dist/ 디렉토리가 생성됨
+# .output/public/ 디렉토리 생성
 ```
-
-GitHub Pages 설정:
-1. Repository Settings > Pages
-2. Source: Deploy from a branch
-3. Branch: gh-pages / root 선택
 
 ## 문서
 

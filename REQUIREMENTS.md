@@ -255,11 +255,11 @@ events/{eventId}
 - [x] 일정 삭제 (작성자만)
 - [x] 대시보드 다가오는 일정 위젯
 
-### Phase 6: 배포 및 최적화
-- [ ] GitHub Pages 배포 설정
-- [ ] 성능 최적화
-- [ ] SEO 설정
-- [ ] 테스트
+### Phase 6: 배포 및 최적화 (완료)
+- [x] GitHub Pages 배포 설정 (GitHub Actions 워크플로우)
+- [x] 번들 최적화 (Firebase/Chart.js 청크 분리)
+- [x] SPA 라우팅 지원 (404.html fallback)
+- [x] SEO 기본 설정 (title, meta description)
 
 ## 보안 및 제약사항
 
@@ -321,6 +321,7 @@ service firebase.storage {
 ```
 
 ### 성능 최적화
+- 번들 청크 분리 (Firebase, Chart.js, UI 별도 청크 → 병렬 로딩)
 - 이미지 lazy loading (갤러리 썸네일)
 - 무한 스크롤 페이지네이션 (IntersectionObserver + cursor 기반)
 - Firestore 쿼리 최적화 (복합 인덱스)

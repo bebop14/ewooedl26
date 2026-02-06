@@ -12,12 +12,34 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
   ],
 
-  // SSG for GitHub Pages
+  // SPA for GitHub Pages
   ssr: false,
 
   // GitHub Pages 배포 설정
   app: {
     baseURL: process.env.NODE_ENV === 'production' ? '/edl_exercise/' : '/',
+    head: {
+      title: 'EDL 이우애용 2026 오운완',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: '오늘 완료한 운동을 기록하고 공유하는 소셜 운동 플랫폼' },
+      ],
+    },
+  },
+
+  // 번들 최적화: Firebase/Chart.js 청크 분리
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+            chartjs: ['chart.js', 'vue-chartjs'],
+          },
+        },
+      },
+    },
   },
 
   // Runtime Config
