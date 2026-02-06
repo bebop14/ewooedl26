@@ -5,7 +5,6 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 
 export interface UserStats {
   totalWorkouts: number
-  totalMinutes: number
   currentStreak: number
   longestStreak: number
   lastWorkoutDate: string | null
@@ -57,7 +56,6 @@ export const useUserStore = defineStore('user', () => {
       createdAt: new Date().toISOString(),
       stats: {
         totalWorkouts: 0,
-        totalMinutes: 0,
         currentStreak: 0,
         longestStreak: 0,
         lastWorkoutDate: null,

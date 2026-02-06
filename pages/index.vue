@@ -10,35 +10,27 @@
       </div>
     </UCard>
 
-    <!-- 오늘의 운동 통계 -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <UCard>
-        <div class="text-center">
-          <UIcon name="i-lucide-flame" class="text-2xl text-blue-500 mb-2" />
-          <p class="text-sm text-muted mb-1">오늘의 운동</p>
-          <p class="text-3xl font-bold text-blue-600">0회</p>
-        </div>
-      </UCard>
-      <UCard>
-        <div class="text-center">
-          <UIcon name="i-lucide-zap" class="text-2xl text-green-500 mb-2" />
-          <p class="text-sm text-muted mb-1">연속 운동</p>
-          <p class="text-3xl font-bold text-green-600">0일</p>
-        </div>
-      </UCard>
-      <UCard>
-        <div class="text-center">
-          <UIcon name="i-lucide-clock" class="text-2xl text-purple-500 mb-2" />
-          <p class="text-sm text-muted mb-1">총 운동 시간</p>
-          <p class="text-3xl font-bold text-purple-600">0분</p>
-        </div>
-      </UCard>
-    </div>
+    <!-- 통계 카드 -->
+    <DashboardStatsCards
+      :today-count="todayWorkouts.length"
+      :streak="userProfile?.stats.currentStreak ?? 0"
+      :total-workouts="userProfile?.stats.totalWorkouts ?? 0"
+      class="mb-8"
+    />
 
     <!-- 액션 버튼 -->
-    <div class="text-center">
-      <UButton label="오늘의 운동 기록하기" icon="i-lucide-plus" size="lg" />
+    <div class="text-center mb-8">
+      <UButton label="오늘의 운동 기록하기" icon="i-lucide-plus" size="lg" to="/workouts/new" />
     </div>
+
+    <!-- 차트 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <DashboardWeeklyChart />
+      <DashboardTypeDistributionChart />
+    </div>
+
+    <!-- 최근 운동 기록 -->
+    <DashboardRecentWorkouts :workouts="recentWorkouts" />
   </UContainer>
 </template>
 
@@ -46,4 +38,19 @@
 definePageMeta({ middleware: 'auth' })
 
 const user = useCurrentUser()
+const userStore = useUserStore()
+const workoutStore = useWorkoutStore()
+
+const { userProfile } = storeToRefs(userStore)
+const { todayWorkouts, workouts: recentWorkouts } = storeToRefs(workoutStore)
+
+onMounted(async () => {
+  if (user.value) {
+    await userStore.loadUserProfile(user.value.uid)
+    await Promise.all([
+      workoutStore.fetchTodayWorkouts(),
+      workoutStore.fetchRecentWorkouts(5),
+    ])
+  }
+})
 </script>

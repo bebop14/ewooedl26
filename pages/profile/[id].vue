@@ -21,19 +21,12 @@
       </UCard>
 
       <!-- 운동 통계 -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <UCard>
           <div class="text-center">
             <UIcon name="i-lucide-flame" class="text-2xl text-blue-500 mb-2" />
             <p class="text-xs text-muted">총 운동</p>
             <p class="text-2xl font-bold">{{ profile.stats.totalWorkouts }}회</p>
-          </div>
-        </UCard>
-        <UCard>
-          <div class="text-center">
-            <UIcon name="i-lucide-clock" class="text-2xl text-purple-500 mb-2" />
-            <p class="text-xs text-muted">총 시간</p>
-            <p class="text-2xl font-bold">{{ profile.stats.totalMinutes }}분</p>
           </div>
         </UCard>
         <UCard>

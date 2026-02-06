@@ -69,12 +69,11 @@
 
 ### Frontend
 - **Framework**: Nuxt 4 + Vue 3
-- **Rendering**: SSG (Static Site Generation) for GitHub Pages
+- **Rendering**: SPA (Client-Side Rendering) for GitHub Pages
 - **UI Library**:
-  - TailwindCSS (스타일링)
-  - Nuxt UI 또는 PrimeVue (컴포넌트)
-  - Chart.js / Vue-ChartJS (차트 및 게이지)
-  - @fullcalendar/vue3 (캘린더)
+  - Nuxt UI v4 (컴포넌트 + TailwindCSS v4 포함)
+  - Chart.js / Vue-ChartJS (차트 및 게이지) - Phase 3에서 추가 예정
+  - @fullcalendar/vue3 (캘린더) - Phase 5에서 추가 예정
 - **상태 관리**: Pinia (Nuxt 3/4 권장)
 - **파일 업로드**: vue-dropzone 또는 직접 구현
 - **이미지 최적화**: Nuxt Image
@@ -163,58 +162,56 @@ comments/{commentId}
 ## 프로젝트 구조 (Nuxt 4)
 ```
 /
-├── nuxt.config.ts          # Nuxt 설정
+├── nuxt.config.ts              # Nuxt 설정
 ├── package.json
-├── .env                    # Firebase 설정 (gitignore)
-├── app.vue                 # 루트 컴포넌트
-├── pages/                  # 페이지 라우팅
-│   ├── index.vue          # 메인 대시보드
-│   ├── login.vue          # 로그인
-│   ├── workouts/
-│   │   ├── new.vue        # 운동 등록
-│   │   └── [id].vue       # 운동 상세
-│   ├── gallery.vue        # 갤러리
-│   ├── ranking.vue        # 순위
-│   ├── calendar.vue       # 캘린더
+├── .env                        # Firebase 설정 (gitignore)
+├── app.vue                     # 루트 컴포넌트 (헤더, 네비게이션)
+├── assets/
+│   └── css/main.css            # TailwindCSS v4 + Nuxt UI 진입점
+├── middleware/                  # 라우트 미들웨어
+│   ├── auth.ts                 # 인증 필요 페이지 보호
+│   └── guest.ts                # 로그인 사용자 리다이렉트
+├── pages/                      # 페이지 라우팅
+│   ├── index.vue               # 메인 대시보드
+│   ├── login.vue               # 로그인
+│   ├── workouts/               # (Phase 3에서 추가)
+│   │   ├── new.vue             # 운동 등록
+│   │   └── [id].vue            # 운동 상세
+│   ├── gallery.vue             # 갤러리 (Phase 4)
+│   ├── ranking.vue             # 순위 (Phase 4)
+│   ├── calendar.vue            # 캘린더 (Phase 5)
 │   └── profile/
-│       └── [id].vue       # 사용자 프로필
-├── components/             # 재사용 컴포넌트
-│   ├── WorkoutCard.vue
-│   ├── StatsGauge.vue
-│   ├── StreakDisplay.vue
-│   ├── RankingTable.vue
-│   └── ImageUploader.vue
-├── composables/            # Vue Composables
-│   ├── useAuth.ts         # Firebase Auth
-│   ├── useFirestore.ts    # Firestore 쿼리
-│   └── useStorage.ts      # Storage 업로드
-├── stores/                 # Pinia Stores
-│   ├── user.ts
-│   ├── workouts.ts
-│   └── ranking.ts
-├── utils/                  # 유틸리티 함수
-│   ├── firebase.ts        # Firebase 초기화
-│   └── imageUtils.ts      # 이미지 처리
-├── public/                 # 정적 파일
+│       └── [id].vue            # 사용자 프로필
+├── components/                  # 재사용 컴포넌트 (Phase 3~에서 추가)
+├── composables/
+│   └── useFirebase.ts          # Firebase Auth/Firestore/Storage/CurrentUser
+├── plugins/
+│   └── firebase.client.ts      # Firebase 초기화 (클라이언트 전용)
+├── stores/                      # Pinia Stores
+│   └── user.ts                 # 사용자 프로필/통계
+├── public/
+│   └── .nojekyll               # GitHub Pages Jekyll 비활성화
 └── README.md
 ```
 
 ## 개발 단계
 
-### Phase 1: 기본 인프라 (1주)
+### Phase 1: 기본 인프라 (완료)
 - [x] 프로젝트 요구사항 정리
-- [ ] Nuxt 4 프로젝트 초기 설정
-- [ ] Firebase 프로젝트 생성 및 연동
-- [ ] TailwindCSS 및 UI 라이브러리 설치
-- [ ] 기본 레이아웃 및 라우팅 구성
+- [x] Nuxt 4 프로젝트 초기 설정
+- [x] Firebase 프로젝트 생성 및 연동 (Auth, Firestore, Storage)
+- [x] Nuxt UI v4 + TailwindCSS v4 설치 및 설정
+- [x] 기본 레이아웃 및 라우팅 구성
+- [x] Pinia 상태 관리 설정
 
-### Phase 2: 인증 및 사용자 관리 (3일)
-- [ ] Firebase Authentication 설정
-- [ ] 구글 로그인 구현
-- [ ] 사용자 프로필 페이지
-- [ ] 인증 미들웨어
+### Phase 2: 인증 및 사용자 관리 (완료)
+- [x] Firebase Authentication 설정 (Google 로그인)
+- [x] 구글 로그인 구현 (signInWithPopup)
+- [x] 사용자 프로필 페이지 (pages/profile/[id].vue)
+- [x] 인증 미들웨어 (auth.ts / guest.ts)
+- [x] 사용자 프로필/통계 Pinia 스토어
 
-### Phase 3: 운동 기록 및 통계 (1주)
+### Phase 3: 운동 기록 및 통계 (다음)
 - [ ] 운동 등록 폼
 - [ ] 이미지 업로드 기능
 - [ ] 개인 대시보드
