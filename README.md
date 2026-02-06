@@ -53,23 +53,41 @@ pnpm dev
 /
 ├── assets/
 │   └── css/main.css    # TailwindCSS v4 + Nuxt UI 진입점
+├── components/
+│   ├── dashboard/      # 대시보드 (StatsCards, WeeklyChart, TypeDistributionChart, RecentWorkouts)
+│   ├── workout/        # 운동 (WorkoutForm, WorkoutCard, ImageUploader)
+│   ├── gallery/        # 갤러리 (GalleryCard, GalleryGrid, GalleryFilter, ImageZoomModal)
+│   ├── social/         # 소셜 (LikeButton, CommentSection)
+│   ├── ranking/        # 순위 (RankingTable)
+│   └── calendar/       # 캘린더 (CalendarHeader, CalendarGrid, EventCard, EventList, EventFormModal)
 ├── composables/
-│   └── useFirebase.ts  # Firebase Auth/Firestore/Storage composables
+│   ├── useFirebase.ts      # Firebase Auth/Firestore/Storage composables
+│   └── useImageUpload.ts   # 이미지 압축 및 업로드
 ├── middleware/
 │   ├── auth.ts         # 인증 필요 페이지 보호
 │   └── guest.ts        # 로그인 사용자 리다이렉트
 ├── pages/
-│   ├── index.vue       # 메인 대시보드
+│   ├── index.vue       # 메인 대시보드 (통계, 차트, 최근 기록)
 │   ├── login.vue       # Google 로그인
-│   ├── gallery.vue     # 갤러리 (개발 예정)
-│   ├── ranking.vue     # 순위 (개발 예정)
-│   ├── calendar.vue    # 캘린더 (개발 예정)
+│   ├── gallery.vue     # 갤러리 (무한 스크롤, 필터)
+│   ├── ranking.vue     # 종합 순위 (횟수/연속/최장)
+│   ├── calendar.vue    # 캘린더 - 행사/단체 연습 일정
+│   ├── workouts/
+│   │   ├── new.vue     # 운동 등록
+│   │   └── [id].vue    # 운동 상세 (좋아요, 댓글, 이미지 확대)
 │   └── profile/
 │       └── [id].vue    # 사용자 프로필
 ├── plugins/
 │   └── firebase.client.ts  # Firebase 초기화 (클라이언트 전용)
 ├── stores/
-│   └── user.ts         # 사용자 프로필/통계 스토어
+│   ├── user.ts         # 사용자 프로필/통계
+│   ├── workout.ts      # 운동 CRUD/통계
+│   ├── social.ts       # 좋아요/댓글/갤러리/순위
+│   └── event.ts        # 캘린더 일정 CRUD
+├── types/
+│   ├── workout.ts      # 운동 타입 정의
+│   ├── social.ts       # 소셜 타입 정의
+│   └── event.ts        # 이벤트 타입 정의
 ├── public/
 │   └── .nojekyll       # GitHub Pages Jekyll 비활성화
 ├── app.vue             # 루트 컴포넌트 (헤더, 네비게이션)
@@ -91,23 +109,26 @@ pnpm dev
 - [x] 사용자 프로필 페이지
 - [x] 사용자 프로필/통계 Pinia 스토어
 
-### Phase 3: 운동 기록 및 통계 (다음)
-- [ ] 운동 등록 폼
-- [ ] 이미지 업로드 기능
-- [ ] 개인 대시보드
-- [ ] 게이지 바 및 통계 시각화
-- [ ] 연속 운동 기간 계산 로직
+### Phase 3: 운동 기록 및 통계 (완료)
+- [x] 운동 등록 폼 (13종류 선택, 날짜, 이미지, 메모, 해시태그)
+- [x] Canvas API 이미지 압축 + Firebase Storage 업로드
+- [x] 대시보드 차트 (Chart.js: 주간 바 차트, 종류별 도넛 차트)
+- [x] 연속 운동(streak) 계산 및 통계 카드
+- [x] 운동 상세 페이지, 최근 운동 목록
 
-### Phase 4: 소셜 기능
-- [ ] 갤러리 피드
-- [ ] 좋아요 기능
-- [ ] 댓글 기능
-- [ ] 종합 순위 시스템
+### Phase 4: 소셜 기능 (완료)
+- [x] 갤러리 피드 (무한 스크롤, 운동 종류 필터)
+- [x] 좋아요 기능 (토글, 원자적 카운터)
+- [x] 댓글 기능 (작성/삭제)
+- [x] 종합 순위 시스템 (횟수/연속/최장 3탭, 전체 현황, 종류별 횟수)
+- [x] 이미지 확대 보기
 
-### Phase 5: 캘린더 및 스케줄
-- [ ] 캘린더 뷰
-- [ ] 운동 계획 등록
-- [ ] 목표 설정
+### Phase 5: 캘린더 및 일정 관리 (완료)
+- [x] 커스텀 월간 캘린더 그리드 (이벤트 색상 점 표시)
+- [x] 행사 일정 등록 (대회, 이벤트, 모임)
+- [x] 단체 연습 일정 등록 (팀 훈련, 합동 운동)
+- [x] 일정 상세 보기, 목록, 타입별 필터링
+- [x] 일정 삭제 (작성자만)
 
 ### Phase 6: 배포 및 최적화
 - [ ] GitHub Pages 배포 설정
