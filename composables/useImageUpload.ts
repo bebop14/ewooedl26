@@ -108,6 +108,32 @@ export function useImageUpload() {
     }
   }
 
+  async function uploadImage(file: File, folder: string): Promise<{ imageUrl: string }> {
+    if (!storage || !user.value) throw new Error('Not authenticated')
+
+    uploading.value = true
+    progress.value = 0
+
+    try {
+      const timestamp = Date.now()
+      progress.value = 10
+
+      const compressed = await compressImage(file, 800, 0.8)
+      progress.value = 50
+
+      const imageRef = storageRef(storage, `${folder}/${timestamp}.jpg`)
+      const snap = await uploadBytes(imageRef, compressed, { contentType: 'image/jpeg' })
+      progress.value = 80
+
+      const imageUrl = await getDownloadURL(snap.ref)
+      progress.value = 100
+
+      return { imageUrl }
+    } finally {
+      uploading.value = false
+    }
+  }
+
   return {
     uploading,
     progress,
@@ -116,5 +142,6 @@ export function useImageUpload() {
     clearPreview,
     uploadWorkoutImage,
     uploadProfileImage,
+    uploadImage,
   }
 }

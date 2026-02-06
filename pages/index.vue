@@ -46,20 +46,33 @@ const user = useCurrentUser()
 const userStore = useUserStore()
 const workoutStore = useWorkoutStore()
 const eventStore = useEventStore()
+const groupStore = useGroupStore()
 
 const { userProfile } = storeToRefs(userStore)
 const { workouts: recentWorkouts } = storeToRefs(workoutStore)
 const topWorkout = ref<{ label: string; icon: string } | null>(null)
 
+async function loadDashboardData() {
+  if (!user.value) return
+
+  const groupId = groupStore.currentGroupId
+  const [, , top] = await Promise.all([
+    workoutStore.fetchRecentWorkouts(5),
+    eventStore.fetchUpcomingEvents(5, groupId),
+    workoutStore.fetchTopWorkoutType(),
+  ])
+  topWorkout.value = top ?? null
+}
+
+// 그룹 변경 시 데이터 리로드
+watch(() => groupStore.currentGroupId, () => {
+  loadDashboardData()
+})
+
 onMounted(async () => {
   if (user.value) {
     await userStore.loadUserProfile(user.value.uid)
-    const [, , top] = await Promise.all([
-      workoutStore.fetchRecentWorkouts(5),
-      eventStore.fetchUpcomingEvents(5),
-      workoutStore.fetchTopWorkoutType(),
-    ])
-    topWorkout.value = top ?? null
+    await loadDashboardData()
   }
 })
 </script>

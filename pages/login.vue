@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth'
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 
 definePageMeta({ middleware: 'guest' })
 
@@ -50,18 +50,14 @@ const auth = useFirebaseAuth()!
 const loading = ref(false)
 const error = ref('')
 
-// 리다이렉트 결과 처리
-onMounted(async () => {
-  try {
-    const result = await getRedirectResult(auth)
-    if (result?.user) {
-      router.push('/')
-    }
-  } catch (err: any) {
-    console.error('Redirect result error:', err)
-    error.value = err.message || '로그인 중 오류가 발생했습니다.'
+const user = useCurrentUser()
+
+// 이미 로그인되어 있으면 홈으로 이동
+watch(user, (newUser) => {
+  if (newUser) {
+    router.push('/')
   }
-})
+}, { immediate: true })
 
 const signInWithGoogle = async () => {
   loading.value = true
@@ -69,10 +65,12 @@ const signInWithGoogle = async () => {
 
   try {
     const provider = new GoogleAuthProvider()
-    await signInWithRedirect(auth, provider)
+    await signInWithPopup(auth, provider)
+    router.push('/')
   } catch (err: any) {
     console.error('Login error:', err)
     error.value = err.message || '로그인 중 오류가 발생했습니다.'
+  } finally {
     loading.value = false
   }
 }

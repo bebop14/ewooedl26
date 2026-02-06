@@ -32,17 +32,19 @@ export const getCurrentUser = (auth: Auth): Promise<User | null> => {
 }
 
 // 컴포넌트용: 반응형 사용자 상태
+const globalUser = ref<User | null>(null)
+let authInitialized = false
+
 export const useCurrentUser = () => {
   const auth = useFirebaseAuth()
-  const user = ref<User | null>(auth?.currentUser || null)
 
-  if (auth) {
-    onMounted(() => {
-      auth.onAuthStateChanged((newUser) => {
-        user.value = newUser
-      })
+  if (auth && !authInitialized) {
+    authInitialized = true
+    globalUser.value = auth.currentUser
+    auth.onAuthStateChanged((newUser) => {
+      globalUser.value = newUser
     })
   }
 
-  return user
+  return globalUser
 }

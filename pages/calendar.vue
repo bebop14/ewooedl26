@@ -102,7 +102,13 @@ function openCreateModal() {
 
 async function handleCreateEvent(formData: EventFormData) {
   try {
-    await eventStore.addEvent(formData)
+    // 현재 선택된 그룹이 있으면 해당 그룹에 일정 추가
+    const groupStore = useGroupStore()
+    const eventData = {
+      ...formData,
+      groupId: groupStore.currentGroupId,
+    }
+    await eventStore.addEvent(eventData)
     showCreateModal.value = false
   } catch (err) {
     console.error('Event creation error:', err)
@@ -119,8 +125,15 @@ async function handleDelete(eventId: string) {
 }
 
 function fetchEvents() {
-  eventStore.fetchMonthEvents(currentYear.value, currentMonth.value)
+  const groupStore = useGroupStore()
+  eventStore.fetchMonthEvents(currentYear.value, currentMonth.value, groupStore.currentGroupId)
 }
+
+// 그룹 변경 시 데이터 리로드
+const groupStore = useGroupStore()
+watch(() => groupStore.currentGroupId, () => {
+  fetchEvents()
+})
 
 onMounted(() => {
   fetchEvents()

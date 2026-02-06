@@ -12,6 +12,18 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
   ],
 
+  // Color Mode - 시스템 설정 따르기
+  colorMode: {
+    preference: 'system',
+  },
+
+  // UI 테마 설정
+  ui: {
+    colors: {
+      primary: 'violet',
+    },
+  },
+
   // SPA for GitHub Pages
   ssr: false,
 

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {
-  collection, doc, addDoc, getDoc, getDocs, query,
+  collection, doc, addDoc, getDoc, getDocs, deleteDoc, query,
   where, orderBy, limit, Timestamp,
 } from 'firebase/firestore'
 import type { Workout, WorkoutFormData, WeeklyStats, WeeklyTypeStats, TypeDistribution } from '~/types/workout'
@@ -36,6 +36,10 @@ export const useWorkoutStore = defineStore('workout', () => {
     try {
       const workoutDate = Timestamp.fromDate(new Date(formData.date + 'T00:00:00'))
 
+      // 사용자의 모든 그룹 ID 가져오기
+      const userDoc = await getDoc(doc(db, 'users', user.value.uid))
+      const userGroupIds = userDoc.data()?.groupIds ?? []
+
       const workoutData: Record<string, any> = {
         userId: user.value.uid,
         userName: user.value.displayName || 'Unknown',
@@ -48,6 +52,7 @@ export const useWorkoutStore = defineStore('workout', () => {
         likes: 0,
         comments: 0,
         hashtags: formData.hashtags,
+        groupIds: userGroupIds,
       }
 
       const docRef = await addDoc(collection(db, 'workouts'), workoutData)
@@ -288,12 +293,72 @@ export const useWorkoutStore = defineStore('workout', () => {
     return info ? { label: info.label, icon: info.icon } : null
   }
 
+  async function deleteWorkout(workoutId: string) {
+    if (!db || !user.value) throw new Error('Not authenticated')
+
+    // 운동 기록 가져와서 본인 것인지 확인
+    const workoutDoc = await getDoc(doc(db, 'workouts', workoutId))
+    if (!workoutDoc.exists()) throw new Error('Workout not found')
+
+    const workoutData = workoutDoc.data()
+    if (workoutData.userId !== user.value.uid) {
+      throw new Error('Not authorized to delete this workout')
+    }
+
+    // 관련 댓글 삭제
+    const commentsQuery = query(
+      collection(db, 'comments'),
+      where('workoutId', '==', workoutId),
+    )
+    const commentsSnapshot = await getDocs(commentsQuery)
+    const commentDeletePromises = commentsSnapshot.docs.map(d => deleteDoc(d.ref))
+
+    // 관련 좋아요 삭제
+    const likesQuery = query(
+      collection(db, 'likes'),
+      where('workoutId', '==', workoutId),
+    )
+    const likesSnapshot = await getDocs(likesQuery)
+    const likeDeletePromises = likesSnapshot.docs.map(d => deleteDoc(d.ref))
+
+    // 모든 삭제 작업 병렬 실행
+    await Promise.all([
+      ...commentDeletePromises,
+      ...likeDeletePromises,
+      deleteDoc(doc(db, 'workouts', workoutId)),
+    ])
+
+    // 사용자 통계 업데이트
+    if (userStore.userProfile) {
+      const currentStats = userStore.userProfile.stats
+      const newTotalWorkouts = Math.max(0, currentStats.totalWorkouts - 1)
+
+      // 운동이 모두 삭제되면 streak과 lastWorkoutDate도 초기화
+      if (newTotalWorkouts === 0) {
+        await userStore.updateStats(user.value.uid, {
+          totalWorkouts: 0,
+          currentStreak: 0,
+          lastWorkoutDate: null,
+        })
+      } else {
+        await userStore.updateStats(user.value.uid, {
+          totalWorkouts: newTotalWorkouts,
+        })
+      }
+    }
+
+    // 로컬 상태에서도 제거
+    workouts.value = workouts.value.filter(w => w.id !== workoutId)
+    todayWorkouts.value = todayWorkouts.value.filter(w => w.id !== workoutId)
+  }
+
   return {
     workouts,
     todayWorkouts,
     loading,
     submitting,
     addWorkout,
+    deleteWorkout,
     fetchTodayWorkouts,
     fetchRecentWorkouts,
     fetchWorkoutById,

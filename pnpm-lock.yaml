@@ -35,6 +35,10 @@ importers:
       vue-router:
         specifier: ^4.6.4
         version: 4.6.4(vue@3.5.27(typescript@5.9.3))
+    devDependencies:
+      '@iconify-json/mdi':
+        specifier: ^1.2.3
+        version: 1.2.3
 
 packages:
 
@@ -748,6 +752,9 @@ packages:
     resolution: {integrity: sha512-tMXdRCfYVixjuFK+Hk0Q1s38gV9zDiDJfWL3h1rv4Qc39oILCu1TRTDt7+fGUI8K4G1Fj125Hx/ru3azECWTyQ==}
     engines: {node: '>=6'}
     hasBin: true
+
+  '@iconify-json/mdi@1.2.3':
+    resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
 
   '@iconify/collections@1.0.647':
     resolution: {integrity: sha512-U6DSwjfDihJ5mQRoBPXNHxTqzVOKLW5AFtVLNSyAuc25Pj+IVcfLjslB9TwZS2xwSPmvdB8SPh9mxJ3kwhMTpA==}
@@ -5503,6 +5510,10 @@ snapshots:
       long: 5.3.2
       protobufjs: 7.5.4
       yargs: 17.7.2
+
+  '@iconify-json/mdi@1.2.3':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify/collections@1.0.647':
     dependencies:

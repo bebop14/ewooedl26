@@ -17,6 +17,7 @@ export interface EventDoc {
   createdBy: string
   createdByName: string
   createdAt: Timestamp
+  groupId: string | null
 }
 
 export interface CalendarEvent extends EventDoc {
@@ -32,6 +33,7 @@ export interface EventFormData {
   endTime: string
   location: string
   description: string
+  groupId?: string | null
 }
 
 export interface EventFilters {

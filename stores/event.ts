@@ -14,7 +14,7 @@ export const useEventStore = defineStore('event', () => {
   const loading = ref(false)
   const submitting = ref(false)
 
-  async function fetchMonthEvents(year: number, month: number) {
+  async function fetchMonthEvents(year: number, month: number, groupId?: string | null) {
     if (!db) return
 
     loading.value = true
@@ -22,12 +22,18 @@ export const useEventStore = defineStore('event', () => {
       const startOfMonth = new Date(year, month, 1)
       const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999)
 
-      const q = query(
-        collection(db, 'events'),
+      const constraints: any[] = [
         where('date', '>=', Timestamp.fromDate(startOfMonth)),
         where('date', '<=', Timestamp.fromDate(endOfMonth)),
         orderBy('date', 'asc'),
-      )
+      ]
+
+      // 그룹 필터 추가
+      if (groupId) {
+        constraints.unshift(where('groupId', '==', groupId))
+      }
+
+      const q = query(collection(db, 'events'), ...constraints)
 
       const snapshot = await getDocs(q)
       events.value = snapshot.docs.map((d) => ({
@@ -60,6 +66,7 @@ export const useEventStore = defineStore('event', () => {
         createdBy: user.value.uid,
         createdByName: user.value.displayName || 'Unknown',
         createdAt: Timestamp.now(),
+        groupId: formData.groupId ?? null,
       }
 
       const docRef = await addDoc(collection(db, 'events'), eventData)
@@ -76,18 +83,24 @@ export const useEventStore = defineStore('event', () => {
     events.value = events.value.filter((e) => e.id !== eventId)
   }
 
-  async function fetchUpcomingEvents(count = 5) {
+  async function fetchUpcomingEvents(count = 5, groupId?: string | null) {
     if (!db) return
 
     const now = new Date()
     now.setHours(0, 0, 0, 0)
 
-    const q = query(
-      collection(db, 'events'),
+    const constraints: any[] = [
       where('date', '>=', Timestamp.fromDate(now)),
       orderBy('date', 'asc'),
       limit(count),
-    )
+    ]
+
+    // 그룹 필터 추가
+    if (groupId) {
+      constraints.unshift(where('groupId', '==', groupId))
+    }
+
+    const q = query(collection(db, 'events'), ...constraints)
 
     const snapshot = await getDocs(q)
     upcomingEvents.value = snapshot.docs.map((d) => ({

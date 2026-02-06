@@ -1,6 +1,6 @@
 <template>
   <UContainer class="py-8">
-    <h1 class="text-2xl font-bold mb-6">갤러리</h1>
+    <h1 class="text-2xl font-bold mb-6">인증샷</h1>
 
     <GalleryFilter v-model="selectedType" class="mb-6" />
 
@@ -25,21 +25,35 @@
 definePageMeta({ middleware: 'auth' })
 
 const socialStore = useSocialStore()
+const groupStore = useGroupStore()
 const selectedType = ref<string | null>(null)
+
+function getFilters() {
+  return {
+    workoutType: selectedType.value,
+    groupId: groupStore.currentGroupId,
+  }
+}
 
 watch(selectedType, () => {
   socialStore.resetGallery()
-  socialStore.fetchGalleryPage(12, { workoutType: selectedType.value })
+  socialStore.fetchGalleryPage(12, getFilters())
+})
+
+// 그룹 변경 시 데이터 리로드
+watch(() => groupStore.currentGroupId, () => {
+  socialStore.resetGallery()
+  socialStore.fetchGalleryPage(12, getFilters())
 })
 
 function loadMore() {
   if (socialStore.galleryHasMore && !socialStore.galleryLoading) {
-    socialStore.fetchGalleryPage(12, { workoutType: selectedType.value })
+    socialStore.fetchGalleryPage(12, getFilters())
   }
 }
 
 onMounted(() => {
   socialStore.resetGallery()
-  socialStore.fetchGalleryPage(12)
+  socialStore.fetchGalleryPage(12, getFilters())
 })
 </script>

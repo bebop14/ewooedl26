@@ -1,8 +1,18 @@
 <template>
   <UContainer class="py-8 max-w-2xl">
-    <div class="flex items-center gap-3 mb-6">
-      <UButton icon="i-lucide-arrow-left" variant="ghost" to="/" />
-      <h1 class="text-2xl font-bold">운동 상세</h1>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <UButton icon="i-lucide-arrow-left" variant="ghost" to="/" />
+        <h1 class="text-2xl font-bold">운동 상세</h1>
+      </div>
+      <UButton
+        v-if="isOwner"
+        icon="i-lucide-trash-2"
+        color="error"
+        variant="ghost"
+        :loading="deleting"
+        @click="confirmDelete"
+      />
     </div>
 
     <div v-if="loading" class="text-center py-12">
@@ -96,12 +106,20 @@ import { Timestamp } from 'firebase/firestore'
 definePageMeta({ middleware: 'auth' })
 
 const route = useRoute()
+const router = useRouter()
+const user = useCurrentUser()
 const workoutStore = useWorkoutStore()
 const socialStore = useSocialStore()
+const toast = useToast()
 
 const workout = ref<Workout | null>(null)
 const loading = ref(true)
 const showZoom = ref(false)
+const deleting = ref(false)
+
+const isOwner = computed(() => {
+  return workout.value && user.value && workout.value.userId === user.value.uid
+})
 
 const typeInfo = computed(() =>
   WORKOUT_TYPES.find((t) => t.value === workout.value?.workoutType) ?? WORKOUT_TYPES[WORKOUT_TYPES.length - 1],
@@ -122,6 +140,31 @@ const formattedDate = computed(() => {
     weekday: 'short',
   })
 })
+
+async function confirmDelete() {
+  if (!workout.value) return
+
+  const confirmed = window.confirm('정말로 이 운동 기록을 삭제하시겠습니까?')
+  if (!confirmed) return
+
+  deleting.value = true
+  try {
+    await workoutStore.deleteWorkout(workout.value.id)
+    toast.add({
+      title: '운동 기록이 삭제되었습니다',
+      color: 'success',
+    })
+    router.push('/')
+  } catch (err) {
+    toast.add({
+      title: '삭제 실패',
+      description: err instanceof Error ? err.message : '알 수 없는 오류',
+      color: 'error',
+    })
+  } finally {
+    deleting.value = false
+  }
+}
 
 onMounted(async () => {
   try {

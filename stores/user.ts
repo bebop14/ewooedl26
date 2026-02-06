@@ -18,6 +18,7 @@ export interface UserProfile {
   provider: string
   createdAt: string
   stats: UserStats
+  groupIds: string[]
 }
 
 export const useUserStore = defineStore('user', () => {
@@ -61,6 +62,7 @@ export const useUserStore = defineStore('user', () => {
         longestStreak: 0,
         lastWorkoutDate: null,
       },
+      groupIds: [],
     }
 
     await setDoc(doc(db, 'users', userId), newProfile)

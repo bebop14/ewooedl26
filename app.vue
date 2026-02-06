@@ -4,6 +4,7 @@
       <UNavigationMenu :items="navItems" />
 
       <template #right>
+        <GroupSelector class="mr-2" />
         <UDropdownMenu :items="userMenuItems">
           <UButton
             :avatar="{ src: user.photoURL || undefined, alt: user.displayName || '사용자' }"
@@ -16,7 +17,7 @@
 
       <template #body>
         <UNavigationMenu :items="navItems" orientation="vertical" class="w-full" />
-        <UDivider class="my-4" />
+        <USeparator class="my-4" />
         <UNavigationMenu :items="mobileUserMenuItems" orientation="vertical" class="w-full" />
       </template>
     </UHeader>
@@ -34,8 +35,9 @@ const user = useCurrentUser()
 const navItems = [
   { label: '대시보드', to: '/', icon: 'i-lucide-layout-dashboard' },
   { label: '순위', to: '/ranking', icon: 'i-lucide-trophy' },
-  { label: '갤러리', to: '/gallery', icon: 'i-lucide-image' },
+  { label: '인증샷', to: '/gallery', icon: 'i-lucide-image' },
   { label: '캘린더', to: '/calendar', icon: 'i-lucide-calendar' },
+  { label: '그룹', to: '/groups', icon: 'i-lucide-users' },
 ]
 
 const userMenuItems = computed(() => [[

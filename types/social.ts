@@ -45,3 +45,7 @@ export interface RankedUser {
 export interface GalleryFilters {
   workoutType: string | null
 }
+
+export interface GroupFilter {
+  groupId: string | null
+}
