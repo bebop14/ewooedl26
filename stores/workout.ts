@@ -3,7 +3,7 @@ import {
   collection, doc, addDoc, getDoc, getDocs, query,
   where, orderBy, limit, Timestamp,
 } from 'firebase/firestore'
-import type { Workout, WorkoutFormData, WeeklyStats, TypeDistribution } from '~/types/workout'
+import type { Workout, WorkoutFormData, WeeklyStats, WeeklyTypeStats, TypeDistribution } from '~/types/workout'
 import { WORKOUT_TYPES } from '~/types/workout'
 
 function getLocalDateString(date = new Date()): string {
@@ -141,6 +141,59 @@ export const useWorkoutStore = defineStore('workout', () => {
     return { labels: ['월', '화', '수', '목', '금', '토', '일'], counts }
   }
 
+  const CHART_COLORS: string[] = [
+    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+    '#06B6D4', '#EC4899', '#F97316', '#14B8A6', '#A855F7',
+    '#64748B', '#84CC16', '#6B7280',
+  ]
+
+  async function fetchWeeklyTypeStats(): Promise<WeeklyTypeStats> {
+    const labels = ['월', '화', '수', '목', '금', '토', '일']
+    if (!db || !user.value) return { labels, datasets: [] }
+
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    const monday = new Date(now)
+    monday.setDate(now.getDate() + mondayOffset)
+    monday.setHours(0, 0, 0, 0)
+
+    const q = query(
+      collection(db, 'workouts'),
+      where('userId', '==', user.value.uid),
+      where('date', '>=', Timestamp.fromDate(monday)),
+      orderBy('date', 'asc'),
+    )
+
+    const snapshot = await getDocs(q)
+
+    // 요일별 운동 종류 카운트
+    const typeByDay = new Map<string, number[]>()
+
+    snapshot.docs.forEach((d) => {
+      const data = d.data()
+      const workoutDate = (data.date as Timestamp).toDate()
+      const workoutType = data.workoutType as string
+      let idx = workoutDate.getDay() - 1
+      if (idx < 0) idx = 6
+
+      if (!typeByDay.has(workoutType)) {
+        typeByDay.set(workoutType, Array(7).fill(0))
+      }
+      typeByDay.get(workoutType)![idx] += 1
+    })
+
+    const datasets = WORKOUT_TYPES
+      .filter((t) => typeByDay.has(t.value))
+      .map((t) => ({
+        label: t.label,
+        data: typeByDay.get(t.value)!,
+        backgroundColor: CHART_COLORS[WORKOUT_TYPES.indexOf(t) % CHART_COLORS.length]!,
+      }))
+
+    return { labels, datasets }
+  }
+
   async function fetchTypeDistribution(): Promise<TypeDistribution> {
     if (!db || !user.value) return { labels: [], counts: [], colors: [] }
 
@@ -157,11 +210,6 @@ export const useWorkoutStore = defineStore('workout', () => {
       countMap.set(type, (countMap.get(type) || 0) + 1)
     })
 
-    const CHART_COLORS: string[] = [
-      '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-      '#06B6D4', '#EC4899', '#F97316', '#14B8A6', '#A855F7',
-      '#64748B', '#84CC16', '#6B7280',
-    ]
     const labels: string[] = []
     const counts: number[] = []
     const colors: string[] = []
@@ -211,6 +259,35 @@ export const useWorkoutStore = defineStore('workout', () => {
     })
   }
 
+  async function fetchTopWorkoutType(): Promise<{ label: string; icon: string } | null> {
+    if (!db || !user.value) return null
+
+    const q = query(
+      collection(db, 'workouts'),
+      where('userId', '==', user.value.uid),
+    )
+    const snapshot = await getDocs(q)
+    if (snapshot.empty) return null
+
+    const countMap = new Map<string, number>()
+    snapshot.docs.forEach((d) => {
+      const type = d.data().workoutType as string
+      countMap.set(type, (countMap.get(type) || 0) + 1)
+    })
+
+    let topType = ''
+    let topCount = 0
+    countMap.forEach((count, type) => {
+      if (count > topCount) {
+        topType = type
+        topCount = count
+      }
+    })
+
+    const info = WORKOUT_TYPES.find((t) => t.value === topType)
+    return info ? { label: info.label, icon: info.icon } : null
+  }
+
   return {
     workouts,
     todayWorkouts,
@@ -221,6 +298,8 @@ export const useWorkoutStore = defineStore('workout', () => {
     fetchRecentWorkouts,
     fetchWorkoutById,
     fetchWeeklyStats,
+    fetchWeeklyTypeStats,
     fetchTypeDistribution,
+    fetchTopWorkoutType,
   }
 })

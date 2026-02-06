@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { updateProfile as updateAuthProfile } from 'firebase/auth'
 
 // nuxt-vuefire가 자동으로 제공하는 composables는 store 내부에서 사용
 
@@ -82,11 +83,23 @@ export const useUserStore = defineStore('user', () => {
     userProfile.value.stats = updatedStats
   }
 
+  // 프로필 업데이트 (이름, 사진)
+  const updateUserProfile = async (userId: string, data: { displayName?: string; photoURL?: string }) => {
+    if (!userProfile.value || !currentUser.value) return
+
+    await updateDoc(doc(db, 'users', userId), data)
+    await updateAuthProfile(currentUser.value, data)
+
+    if (data.displayName) userProfile.value.displayName = data.displayName
+    if (data.photoURL) userProfile.value.photoURL = data.photoURL
+  }
+
   return {
     userProfile,
     loading,
     loadUserProfile,
     createUserProfile,
     updateStats,
+    updateUserProfile,
   }
 })

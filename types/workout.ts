@@ -49,6 +49,17 @@ export interface WeeklyStats {
   counts: number[]
 }
 
+export interface WeeklyTypeDataset {
+  label: string
+  data: number[]
+  backgroundColor: string
+}
+
+export interface WeeklyTypeStats {
+  labels: string[]
+  datasets: WeeklyTypeDataset[]
+}
+
 export interface TypeDistribution {
   labels: string[]
   counts: number[]

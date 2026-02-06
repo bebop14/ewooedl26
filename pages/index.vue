@@ -12,7 +12,7 @@
 
     <!-- 통계 카드 -->
     <DashboardStatsCards
-      :today-count="todayWorkouts.length"
+      :top-workout="topWorkout"
       :streak="userProfile?.stats.currentStreak ?? 0"
       :total-workouts="userProfile?.stats.totalWorkouts ?? 0"
       class="mb-8"
@@ -48,16 +48,18 @@ const workoutStore = useWorkoutStore()
 const eventStore = useEventStore()
 
 const { userProfile } = storeToRefs(userStore)
-const { todayWorkouts, workouts: recentWorkouts } = storeToRefs(workoutStore)
+const { workouts: recentWorkouts } = storeToRefs(workoutStore)
+const topWorkout = ref<{ label: string; icon: string } | null>(null)
 
 onMounted(async () => {
   if (user.value) {
     await userStore.loadUserProfile(user.value.uid)
-    await Promise.all([
-      workoutStore.fetchTodayWorkouts(),
+    const [, , top] = await Promise.all([
       workoutStore.fetchRecentWorkouts(5),
       eventStore.fetchUpcomingEvents(5),
+      workoutStore.fetchTopWorkoutType(),
     ])
+    topWorkout.value = top ?? null
   }
 })
 </script>
