@@ -8,13 +8,9 @@
 ## 핵심 기능
 
 ### 1. 사용자 인증
-- **1단계 (우선 구현)**
-  - 구글 로그인 (Firebase Authentication 기본 제공)
-  - 로그아웃
-  - 사용자 프로필 관리
-- **2단계 (후순위)**
-  - 네이버 로그인 (OAuth 2.0 + Firebase Custom Auth)
-  - 카카오 로그인 (OAuth 2.0 + Firebase Custom Auth)
+- 구글 로그인 (Firebase Authentication 기본 제공)
+- 로그아웃
+- 사용자 프로필 관리
 
 ### 2. 오운완 등록
 - 운동 종류 선택 (축구, 웨이트, 러닝, 걷기, 자전거, 요가, 수영, 등산, 테니스, 계단오르기, 크로스핏, 홈트레이닝, 기타)
@@ -81,8 +77,7 @@
 
 ### Backend (Firebase)
 - **Authentication**: Firebase Authentication
-  - Google Provider (1단계)
-  - Custom Auth Provider (네이버, 카카오 - 2단계)
+  - Google Provider
 - **Database**: Cloud Firestore
   - 사용자 프로필
   - 운동 기록
@@ -94,7 +89,6 @@
 - **Functions**: Firebase Cloud Functions (선택사항)
   - 이미지 리사이징
   - 순위 계산 Batch Job
-  - 네이버/카카오 OAuth 처리 (2단계)
 
 ### 배포 및 도구
 - **호스팅**: GitHub Pages (Static)
@@ -110,7 +104,7 @@ users/{userId}
   - displayName: string
   - email: string
   - photoURL: string
-  - provider: 'google' | 'naver' | 'kakao'
+  - provider: 'google'
   - createdAt: string (ISO)
   - stats: {
       totalWorkouts: number
@@ -261,10 +255,6 @@ events/{eventId}
 - [ ] 성능 최적화
 - [ ] SEO 설정
 - [ ] 테스트
-
-### Phase 7: 추가 인증 (후순위)
-- [ ] 네이버 로그인
-- [ ] 카카오 로그인
 
 ## 보안 및 제약사항
 
