@@ -293,6 +293,78 @@ export const useWorkoutStore = defineStore('workout', () => {
     return info ? { label: info.label, icon: info.icon } : null
   }
 
+  async function recalculateUserStats() {
+    if (!db || !user.value) return
+
+    // 모든 운동 기록 조회 (날짜 내림차순)
+    const q = query(
+      collection(db, 'workouts'),
+      where('userId', '==', user.value.uid),
+      orderBy('date', 'desc'),
+    )
+    const snapshot = await getDocs(q)
+
+    if (snapshot.empty) {
+      // 운동 기록이 없으면 통계 초기화
+      await userStore.updateStats(user.value.uid, {
+        totalWorkouts: 0,
+        currentStreak: 0,
+        longestStreak: userStore.userProfile?.stats.longestStreak || 0,
+        lastWorkoutDate: '',
+      })
+      return
+    }
+
+    const totalWorkouts = snapshot.size
+
+    // 날짜별로 운동 기록 그룹핑 (중복 날짜 제거)
+    const workoutDates = new Set<string>()
+    snapshot.docs.forEach((d) => {
+      const data = d.data()
+      const workoutDate = (data.date as Timestamp).toDate()
+      workoutDates.add(getLocalDateString(workoutDate))
+    })
+
+    // 날짜를 정렬 (최신순)
+    const sortedDates = Array.from(workoutDates).sort().reverse()
+    const lastWorkoutDate = sortedDates[0] || ''
+
+    // 연속 운동일 계산
+    let currentStreak = 0
+    const today = getLocalDateString()
+    const yesterday = getYesterdayDateString()
+
+    // 오늘 또는 어제부터 시작해서 연속일 계산
+    let checkDate = sortedDates.includes(today) ? today : (sortedDates.includes(yesterday) ? yesterday : '')
+
+    if (checkDate) {
+      for (const dateStr of sortedDates) {
+        if (dateStr === checkDate) {
+          currentStreak++
+          // 다음 확인할 날짜 (하루 전)
+          const d = new Date(checkDate + 'T00:00:00')
+          d.setDate(d.getDate() - 1)
+          checkDate = getLocalDateString(d)
+        } else if (dateStr < checkDate) {
+          // 연속이 끊김
+          break
+        }
+      }
+    }
+
+    const longestStreak = Math.max(
+      userStore.userProfile?.stats.longestStreak || 0,
+      currentStreak,
+    )
+
+    await userStore.updateStats(user.value.uid, {
+      totalWorkouts,
+      currentStreak,
+      longestStreak,
+      lastWorkoutDate,
+    })
+  }
+
   async function deleteWorkout(workoutId: string) {
     if (!db || !user.value) throw new Error('Not authenticated')
 
@@ -328,24 +400,8 @@ export const useWorkoutStore = defineStore('workout', () => {
       deleteDoc(doc(db, 'workouts', workoutId)),
     ])
 
-    // 사용자 통계 업데이트
-    if (userStore.userProfile) {
-      const currentStats = userStore.userProfile.stats
-      const newTotalWorkouts = Math.max(0, currentStats.totalWorkouts - 1)
-
-      // 운동이 모두 삭제되면 streak과 lastWorkoutDate도 초기화
-      if (newTotalWorkouts === 0) {
-        await userStore.updateStats(user.value.uid, {
-          totalWorkouts: 0,
-          currentStreak: 0,
-          lastWorkoutDate: null,
-        })
-      } else {
-        await userStore.updateStats(user.value.uid, {
-          totalWorkouts: newTotalWorkouts,
-        })
-      }
-    }
+    // 사용자 통계 업데이트 - 남은 운동 기록 기반으로 재계산
+    await recalculateUserStats()
 
     // 로컬 상태에서도 제거
     workouts.value = workouts.value.filter(w => w.id !== workoutId)
