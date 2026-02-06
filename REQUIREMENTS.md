@@ -9,8 +9,9 @@
 
 ### 1. 사용자 인증
 - 구글 로그인 (Firebase Authentication 기본 제공)
-- 로그아웃
+- 로그아웃 (로그인 페이지로 리다이렉트)
 - 사용자 프로필 관리
+- 프로필 편집 (이름/사진 변경, Firebase Auth 동기화)
 
 ### 2. 오운완 등록
 - 운동 종류 선택 (축구, 웨이트, 러닝, 걷기, 자전거, 요가, 수영, 등산, 테니스, 계단오르기, 크로스핏, 홈트레이닝, 기타)
@@ -24,16 +25,16 @@
 
 ### 3. 개인별 운동 통계 기록
 - **대시보드 통계 카드**
-  - 오늘의 운동 횟수
+  - 가장 많이 한 운동 (종류 아이콘 + 이름)
   - 연속 운동일수 (스트릭)
   - 총 운동 횟수
 - **차트 시각화** (Chart.js + vue-chartjs)
-  - 주간 운동 횟수 바 차트
+  - 주간 운동 종류별 스택 바 차트 (요일별 운동 종류 분포)
   - 운동 종류별 분포 도넛 차트
 - **연속 운동 기간 표시**
   - 현재 연속 운동일수
   - 최장 연속 기록
-- 최근 운동 기록 목록
+- 최근 운동 기록 목록 (썸네일 그리드, 날짜/좋아요/댓글 표시)
 - 다가오는 일정 위젯 (캘린더 연동)
 
 ### 4. 종합 순위
@@ -71,7 +72,7 @@
 - **Rendering**: SPA (Client-Side Rendering) for GitHub Pages
 - **UI Library**:
   - Nuxt UI v4 (컴포넌트 + TailwindCSS v4 포함)
-  - Chart.js / vue-chartjs (주간 바 차트, 종류별 도넛 차트)
+  - Chart.js / vue-chartjs (주간 종류별 스택 바 차트, 종류별 도넛 차트)
   - 커스텀 캘린더 그리드 (CSS Grid, 외부 라이브러리 없음)
 - **상태 관리**: Pinia (Composition API)
 - **이미지 업로드**: Canvas API 직접 구현 (브라우저 내 압축)
@@ -226,16 +227,18 @@ events/{eventId}
 ### Phase 2: 인증 및 사용자 관리 (완료)
 - [x] Firebase Authentication 설정 (Google 로그인)
 - [x] 구글 로그인 구현 (signInWithPopup)
+- [x] 로그아웃 시 로그인 페이지 리다이렉트
 - [x] 사용자 프로필 페이지 (pages/profile/[id].vue)
+- [x] 프로필 편집 (이름/사진 변경, Firebase Auth 동기화)
 - [x] 인증 미들웨어 (auth.ts / guest.ts)
 - [x] 사용자 프로필/통계 Pinia 스토어
 
 ### Phase 3: 운동 기록 및 통계 (완료)
 - [x] 운동 등록 폼 (13종류 선택, 날짜, 이미지, 메모, 해시태그)
 - [x] Canvas API 이미지 압축 + Firebase Storage 업로드 (원본+썸네일)
-- [x] 대시보드 차트 (Chart.js: 주간 바 차트, 종류별 도넛 차트)
-- [x] 연속 운동(streak) 계산 및 통계 카드
-- [x] 운동 상세 페이지, 최근 운동 목록
+- [x] 대시보드 차트 (Chart.js: 주간 종류별 스택 바 차트, 종류별 도넛 차트)
+- [x] 통계 카드 (가장 많이 한 운동, 연속 운동일, 총 운동 횟수)
+- [x] 운동 상세 페이지, 최근 운동 썸네일 그리드
 
 ### Phase 4: 소셜 기능 (완료)
 - [x] 갤러리 피드 (무한 스크롤, IntersectionObserver, 운동 종류 필터)
@@ -307,6 +310,11 @@ service firebase.storage {
       allow read: if request.auth != null;
       allow write: if request.auth.uid == userId
                    && request.resource.size < 10 * 1024 * 1024;
+    }
+    match /profiles/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024;
     }
   }
 }
