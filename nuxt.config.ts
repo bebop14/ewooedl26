@@ -17,7 +17,7 @@ export default defineNuxtConfig({
 
   // GitHub Pages 배포 설정
   app: {
-    baseURL: process.env.NODE_ENV === 'production' ? '/edl_exercise/' : '/',
+    baseURL: process.env.NODE_ENV === 'production' ? '/ewooedl26/' : '/',
     head: {
       title: 'EDL 이우애용 2026 오운완',
       meta: [
