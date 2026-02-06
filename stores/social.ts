@@ -72,13 +72,13 @@ export const useSocialStore = defineStore('social', () => {
       const q = query(
         collection(db, 'comments'),
         where('workoutId', '==', workoutId),
-        orderBy('createdAt', 'asc'),
       )
       const snapshot = await getDocs(q)
       comments.value = snapshot.docs.map((d) => ({
         id: d.id,
         ...d.data(),
       } as Comment))
+      comments.value.sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis())
     } finally {
       commentsLoading.value = false
     }

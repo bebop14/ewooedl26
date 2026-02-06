@@ -1,6 +1,6 @@
 <template>
   <UApp>
-    <UHeader v-if="user" title="오운완" to="/">
+    <UHeader v-if="user" title="EDL 이우애용 2026 오운완" to="/">
       <UNavigationMenu :items="navItems" />
 
       <template #right>
@@ -48,6 +48,7 @@ const userMenuItems = computed(() => [[
 const handleSignOut = async () => {
   if (auth) {
     await signOut(auth)
+    await navigateTo('/login')
   }
 }
 </script>

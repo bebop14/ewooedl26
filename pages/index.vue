@@ -29,6 +29,11 @@
       <DashboardTypeDistributionChart />
     </div>
 
+    <!-- 다가오는 일정 -->
+    <div class="mb-8">
+      <DashboardUpcomingEvents :events="eventStore.upcomingEvents" />
+    </div>
+
     <!-- 최근 운동 기록 -->
     <DashboardRecentWorkouts :workouts="recentWorkouts" />
   </UContainer>
@@ -40,6 +45,7 @@ definePageMeta({ middleware: 'auth' })
 const user = useCurrentUser()
 const userStore = useUserStore()
 const workoutStore = useWorkoutStore()
+const eventStore = useEventStore()
 
 const { userProfile } = storeToRefs(userStore)
 const { todayWorkouts, workouts: recentWorkouts } = storeToRefs(workoutStore)
@@ -50,6 +56,7 @@ onMounted(async () => {
     await Promise.all([
       workoutStore.fetchTodayWorkouts(),
       workoutStore.fetchRecentWorkouts(5),
+      eventStore.fetchUpcomingEvents(5),
     ])
   }
 })

@@ -10,13 +10,13 @@
       <button
         v-for="(cell, idx) in calendarCells"
         :key="idx"
-        class="bg-white dark:bg-gray-900 p-1.5 min-h-14 md:min-h-18 flex flex-col items-center gap-0.5 transition-colors text-sm"
+        class="bg-white dark:bg-gray-900 p-1 min-h-20 md:min-h-24 flex flex-col items-stretch gap-0.5 transition-colors text-sm"
         :class="cellClasses(cell)"
         :disabled="!cell.isCurrentMonth"
         @click="cell.isCurrentMonth && $emit('selectDate', cell.dateStr)"
       >
         <span
-          class="leading-none"
+          class="leading-none text-center mb-0.5"
           :class="{
             'font-bold text-blue-600 dark:text-blue-400': cell.isToday,
             'text-gray-300 dark:text-gray-600': !cell.isCurrentMonth,
@@ -24,22 +24,23 @@
         >
           {{ cell.day }}
         </span>
-        <!-- 이벤트 점 -->
-        <div
-          v-if="cell.isCurrentMonth && cell.dots.length > 0"
-          class="flex gap-0.5 flex-wrap justify-center"
-        >
-          <span
-            v-for="(dot, i) in cell.dots.slice(0, 3)"
+        <!-- 일정 제목 목록 -->
+        <div v-if="cell.isCurrentMonth && cell.events.length > 0" class="flex flex-col gap-px overflow-hidden">
+          <div
+            v-for="(ev, i) in cell.events.slice(0, 2)"
             :key="i"
-            class="w-1.5 h-1.5 rounded-full"
-            :class="dot === 'event' ? 'bg-blue-500' : 'bg-green-500'"
-          />
-          <span
-            v-if="cell.dots.length > 3"
-            class="text-[0.5rem] text-gray-400 leading-none"
+            class="text-[0.6rem] md:text-xs leading-tight px-1 py-px rounded truncate text-left"
+            :class="ev.type === 'event'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+              : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'"
           >
-            +{{ cell.dots.length - 3 }}
+            {{ ev.title }}
+          </div>
+          <span
+            v-if="cell.events.length > 2"
+            class="text-[0.55rem] text-gray-400 text-center leading-none"
+          >
+            +{{ cell.events.length - 2 }}건
           </span>
         </div>
       </button>
@@ -64,12 +65,17 @@ defineEmits<{
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토']
 
+interface CellEvent {
+  title: string
+  type: EventTypeValue
+}
+
 interface CalendarCell {
   day: number
   dateStr: string
   isCurrentMonth: boolean
   isToday: boolean
-  dots: EventTypeValue[]
+  events: CellEvent[]
 }
 
 const todayStr = computed(() => {
@@ -78,7 +84,7 @@ const todayStr = computed(() => {
 })
 
 const eventsByDate = computed(() => {
-  const map = new Map<string, EventTypeValue[]>()
+  const map = new Map<string, CellEvent[]>()
   const filtered = props.filterType
     ? props.events.filter((e) => e.type === props.filterType)
     : props.events
@@ -87,7 +93,7 @@ const eventsByDate = computed(() => {
     const d = ev.date.toDate()
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     if (!map.has(key)) map.set(key, [])
-    map.get(key)!.push(ev.type)
+    map.get(key)!.push({ title: ev.title, type: ev.type })
   }
   return map
 })
@@ -105,7 +111,7 @@ const calendarCells = computed((): CalendarCell[] => {
     const prevMonth = props.month === 0 ? 11 : props.month - 1
     const prevYear = props.month === 0 ? props.year - 1 : props.year
     const dateStr = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    cells.push({ day, dateStr, isCurrentMonth: false, isToday: false, dots: [] })
+    cells.push({ day, dateStr, isCurrentMonth: false, isToday: false, events: [] })
   }
 
   // 현재 달
@@ -116,7 +122,7 @@ const calendarCells = computed((): CalendarCell[] => {
       dateStr,
       isCurrentMonth: true,
       isToday: dateStr === todayStr.value,
-      dots: eventsByDate.value.get(dateStr) || [],
+      events: eventsByDate.value.get(dateStr) || [],
     })
   }
 
@@ -126,7 +132,7 @@ const calendarCells = computed((): CalendarCell[] => {
     const nextMonth = props.month === 11 ? 0 : props.month + 1
     const nextYear = props.month === 11 ? props.year + 1 : props.year
     const dateStr = `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-    cells.push({ day: d, dateStr, isCurrentMonth: false, isToday: false, dots: [] })
+    cells.push({ day: d, dateStr, isCurrentMonth: false, isToday: false, events: [] })
   }
 
   return cells

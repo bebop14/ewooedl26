@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import {
   collection, doc, addDoc, deleteDoc, getDocs,
-  query, where, orderBy, Timestamp,
+  query, where, orderBy, limit, Timestamp,
 } from 'firebase/firestore'
 import type { CalendarEvent, EventFormData, EventFilters } from '~/types/event'
 
@@ -10,6 +10,7 @@ export const useEventStore = defineStore('event', () => {
   const user = useCurrentUser()
 
   const events = ref<CalendarEvent[]>([])
+  const upcomingEvents = ref<CalendarEvent[]>([])
   const loading = ref(false)
   const submitting = ref(false)
 
@@ -75,6 +76,26 @@ export const useEventStore = defineStore('event', () => {
     events.value = events.value.filter((e) => e.id !== eventId)
   }
 
+  async function fetchUpcomingEvents(count = 5) {
+    if (!db) return
+
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+
+    const q = query(
+      collection(db, 'events'),
+      where('date', '>=', Timestamp.fromDate(now)),
+      orderBy('date', 'asc'),
+      limit(count),
+    )
+
+    const snapshot = await getDocs(q)
+    upcomingEvents.value = snapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    } as CalendarEvent))
+  }
+
   function getEventsForDate(dateStr: string): CalendarEvent[] {
     return events.value.filter((e) => {
       const d = e.date.toDate()
@@ -90,9 +111,11 @@ export const useEventStore = defineStore('event', () => {
 
   return {
     events,
+    upcomingEvents,
     loading,
     submitting,
     fetchMonthEvents,
+    fetchUpcomingEvents,
     addEvent,
     deleteEvent,
     getEventsForDate,

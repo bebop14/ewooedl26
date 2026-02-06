@@ -34,6 +34,7 @@
   - 현재 연속 운동일수
   - 최장 연속 기록
 - 최근 운동 기록 목록
+- 다가오는 일정 위젯 (캘린더 연동)
 
 ### 4. 종합 순위
 - 전체 회원 운동 현황 (총 회원수, 총 운동 횟수)
@@ -187,7 +188,7 @@ events/{eventId}
 │   └── profile/
 │       └── [id].vue            # 사용자 프로필
 ├── components/
-│   ├── dashboard/              # StatsCards, WeeklyChart, TypeDistributionChart, RecentWorkouts
+│   ├── dashboard/              # StatsCards, WeeklyChart, TypeDistributionChart, RecentWorkouts, UpcomingEvents
 │   ├── workout/                # WorkoutForm, WorkoutCard, ImageUploader
 │   ├── gallery/                # GalleryCard, GalleryGrid, GalleryFilter, ImageZoomModal
 │   ├── social/                 # LikeButton, CommentSection
@@ -244,11 +245,12 @@ events/{eventId}
 - [x] 이미지 확대 보기 (UModal)
 
 ### Phase 5: 캘린더 및 일정 관리 (완료)
-- [x] 커스텀 월간 캘린더 그리드 (CSS Grid, 이벤트 색상 점 표시)
+- [x] 커스텀 월간 캘린더 그리드 (CSS Grid, 일정 제목 표시)
 - [x] 행사 일정 등록 (대회, 이벤트, 모임) - 모달 폼
 - [x] 단체 연습 일정 등록 (팀 훈련, 합동 운동)
 - [x] 일정 상세 보기, 목록, 타입별 필터링
 - [x] 일정 삭제 (작성자만)
+- [x] 대시보드 다가오는 일정 위젯
 
 ### Phase 6: 배포 및 최적화
 - [ ] GitHub Pages 배포 설정

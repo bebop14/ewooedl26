@@ -54,7 +54,7 @@ pnpm dev
 ├── assets/
 │   └── css/main.css    # TailwindCSS v4 + Nuxt UI 진입점
 ├── components/
-│   ├── dashboard/      # 대시보드 (StatsCards, WeeklyChart, TypeDistributionChart, RecentWorkouts)
+│   ├── dashboard/      # 대시보드 (StatsCards, WeeklyChart, TypeDistributionChart, RecentWorkouts, UpcomingEvents)
 │   ├── workout/        # 운동 (WorkoutForm, WorkoutCard, ImageUploader)
 │   ├── gallery/        # 갤러리 (GalleryCard, GalleryGrid, GalleryFilter, ImageZoomModal)
 │   ├── social/         # 소셜 (LikeButton, CommentSection)
@@ -124,11 +124,12 @@ pnpm dev
 - [x] 이미지 확대 보기
 
 ### Phase 5: 캘린더 및 일정 관리 (완료)
-- [x] 커스텀 월간 캘린더 그리드 (이벤트 색상 점 표시)
+- [x] 커스텀 월간 캘린더 그리드 (일정 제목 표시)
 - [x] 행사 일정 등록 (대회, 이벤트, 모임)
 - [x] 단체 연습 일정 등록 (팀 훈련, 합동 운동)
 - [x] 일정 상세 보기, 목록, 타입별 필터링
 - [x] 일정 삭제 (작성자만)
+- [x] 대시보드 다가오는 일정 위젯
 
 ### Phase 6: 배포 및 최적화
 - [ ] GitHub Pages 배포 설정

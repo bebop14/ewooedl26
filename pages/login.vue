@@ -3,8 +3,8 @@
     <UCard class="w-full max-w-md">
       <template #header>
         <div class="text-center">
-          <h1 class="text-3xl font-bold">오운완</h1>
-          <p class="text-sm text-muted mt-1">오늘 운동 완료!</p>
+          <h1 class="text-3xl font-bold">EDL 이우애용 2026 오운완</h1>
+          <p class="text-sm text-muted mt-1">오늘도 운동 완료! 당신의 운동 여정을 확인해보세요</p>
         </div>
       </template>
 
@@ -26,11 +26,6 @@
           </template>
         </UButton>
 
-        <USeparator label="또는" />
-
-        <p class="text-center text-sm text-muted">
-          네이버, 카카오 로그인은 곧 지원 예정입니다.
-        </p>
       </div>
 
       <UAlert
