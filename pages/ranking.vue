@@ -31,6 +31,13 @@
       />
     </div>
 
+    <RankingChart
+      v-if="!socialStore.rankingsLoading"
+      :users="socialStore.rankings"
+      :sort-by="activeTab"
+      class="mb-6"
+    />
+
     <div v-if="socialStore.rankingsLoading" class="text-center py-12">
       <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
     </div>
