@@ -36,13 +36,31 @@
 
     <!-- 최근 운동 기록 -->
     <DashboardRecentWorkouts :workouts="recentWorkouts" />
+
+    <!-- 피드백 -->
+    <div class="text-center mt-8 pb-4">
+      <UButton
+        label="의견 보내기"
+        icon="i-lucide-message-square-plus"
+        variant="ghost"
+        color="neutral"
+        size="sm"
+        @click="feedbackOpen = true"
+      />
+    </div>
+
+    <DashboardFeedbackModal v-model:open="feedbackOpen" @submit="handleFeedbackSubmit" />
   </UContainer>
 </template>
 
 <script setup lang="ts">
+import { collection, addDoc, Timestamp } from 'firebase/firestore'
+
 definePageMeta({ middleware: 'auth' })
 
 const user = useCurrentUser()
+const db = useFirestore()
+const toast = useToast()
 const userStore = useUserStore()
 const workoutStore = useWorkoutStore()
 const eventStore = useEventStore()
@@ -51,6 +69,7 @@ const groupStore = useGroupStore()
 const { userProfile } = storeToRefs(userStore)
 const { workouts: recentWorkouts } = storeToRefs(workoutStore)
 const topWorkout = ref<{ label: string; icon: string } | null>(null)
+const feedbackOpen = ref(false)
 
 async function loadDashboardData() {
   if (!user.value) return
@@ -77,4 +96,27 @@ onMounted(async () => {
     await loadDashboardData()
   }
 })
+
+async function handleFeedbackSubmit(content: string) {
+  if (!user.value) return
+  try {
+    await addDoc(collection(db, 'feedback'), {
+      userId: user.value.uid,
+      userName: user.value.displayName || '',
+      content,
+      createdAt: Timestamp.now(),
+    })
+    toast.add({
+      title: '의견이 전송되었습니다',
+      description: '소중한 의견 감사합니다!',
+      color: 'success',
+    })
+  } catch {
+    toast.add({
+      title: '전송 실패',
+      description: '잠시 후 다시 시도해주세요',
+      color: 'error',
+    })
+  }
+}
 </script>

@@ -7,7 +7,8 @@
 - **운동 기록**: 13가지 운동 종류, 인증샷, 메모, 해시태그
 - **그룹 시스템**: 여러 그룹 가입/생성, 그룹별 필터링
 - **인증샷 갤러리**: 무한 스크롤, 운동 종류 필터, 좋아요/댓글
-- **그룹 순위**: 운동 횟수, 연속 운동일, 최장 연속 기록
+- **그룹 순위**: 운동 횟수, 연속 운동일, 최장 연속 기록, 상위 10명 Bar 차트
+- **피드백**: 사용자 의견 보내기, 관리자 피드백 관리
 - **캘린더**: 행사/단체 연습 일정 관리
 - **대시보드**: 통계 카드, 주간 차트, 최근 기록
 
@@ -67,7 +68,7 @@ pnpm dev
 │   ├── workout/            # 운동 (WorkoutForm, WorkoutCard, ImageUploader)
 │   ├── gallery/            # 인증샷 갤러리 (GalleryCard, GalleryGrid, GalleryFilter, ImageZoomModal)
 │   ├── social/             # 소셜 (LikeButton, CommentSection)
-│   ├── ranking/            # 순위 (RankingTable)
+│   ├── ranking/            # 순위 (RankingTable, RankingChart)
 │   ├── calendar/           # 캘린더 (CalendarHeader, CalendarGrid, EventCard, EventList, EventFormModal)
 │   └── group/              # 그룹 (GroupCard, GroupSelector)
 ├── composables/
@@ -75,13 +76,16 @@ pnpm dev
 │   └── useImageUpload.ts   # 이미지 압축 및 업로드
 ├── middleware/
 │   ├── auth.ts             # 인증 필요 페이지 보호
+│   ├── admin.ts            # 관리자 전용 페이지 보호
 │   └── guest.ts            # 로그인 사용자 리다이렉트
 ├── pages/
-│   ├── index.vue           # 메인 대시보드 (통계, 차트, 최근 기록)
+│   ├── index.vue           # 메인 대시보드 (통계, 차트, 최근 기록, 피드백)
 │   ├── login.vue           # Google 로그인
 │   ├── gallery.vue         # 인증샷 갤러리 (무한 스크롤, 필터)
-│   ├── ranking.vue         # 그룹 순위 (횟수/연속/최장)
+│   ├── ranking.vue         # 그룹 순위 (횟수/연속/최장, 차트)
 │   ├── calendar.vue        # 캘린더 - 행사/단체 연습 일정
+│   ├── admin/
+│   │   └── feedback.vue    # 피드백 관리 (관리자 전용)
 │   ├── groups/
 │   │   ├── index.vue       # 그룹 목록/탐색
 │   │   ├── new.vue         # 그룹 생성
@@ -163,6 +167,13 @@ pnpm dev
 - [x] 그룹 멤버 목록
 - [x] 운동 기록 자동 그룹 공유 (사용자가 속한 모든 그룹에 공유)
 
+### Phase 8: 피드백 및 관리자 기능 (완료)
+- [x] 사용자 피드백 전송 (대시보드 의견 보내기)
+- [x] 관리자 피드백 관리 페이지
+- [x] 관리자 미들웨어 (admin.ts)
+- [x] 사용자 역할(role) 지원 (admin/member)
+- [x] 순위 페이지 상위 10명 Bar 차트 (금/은/동 강조)
+
 ## Firestore 데이터 모델
 
 ### Collections
@@ -175,12 +186,21 @@ interface UserDoc {
   email: string
   createdAt: Timestamp
   groupIds: string[]           // 가입한 그룹 ID 배열
+  role?: 'admin' | 'member'   // 사용자 역할
   stats: {
     totalWorkouts: number
     currentStreak: number
     longestStreak: number
     lastWorkoutDate: string
   }
+}
+
+// feedback/{feedbackId}
+interface FeedbackDoc {
+  userId: string
+  userName: string
+  content: string
+  createdAt: Timestamp
 }
 
 // groups/{groupId}

@@ -19,6 +19,7 @@ export interface UserProfile {
   createdAt: string
   stats: UserStats
   groupIds: string[]
+  role?: 'admin' | 'member'
 }
 
 export const useUserStore = defineStore('user', () => {
@@ -27,6 +28,7 @@ export const useUserStore = defineStore('user', () => {
 
   const userProfile = ref<UserProfile | null>(null)
   const loading = ref(false)
+  const isAdmin = computed(() => userProfile.value?.role === 'admin')
 
   // 사용자 프로필 로드
   const loadUserProfile = async (userId: string) => {
@@ -99,6 +101,7 @@ export const useUserStore = defineStore('user', () => {
   return {
     userProfile,
     loading,
+    isAdmin,
     loadUserProfile,
     createUserProfile,
     updateStats,

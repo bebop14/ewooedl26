@@ -48,6 +48,7 @@
   - 운동 종류별 횟수
   - 최근 운동일
 - 내 순위 강조 표시
+- **순위 차트**: 상위 10명 Bar 차트 (1~3위 금/은/동 강조)
 
 ### 5. 갤러리 (업로드된 이미지)
 - 전체 사용자의 오운완 이미지 피드
@@ -64,6 +65,11 @@
 - 일정별 상세 정보 (제목, 날짜/시간, 장소, 설명, 참가자)
 - 일정 목록 보기 및 필터링
 - 전체 회원 공유 일정
+
+### 7. 피드백
+- 사용자 의견 보내기 (대시보드 모달)
+- 관리자 피드백 관리 페이지 (페이지네이션)
+- 관리자 미들웨어 (역할 기반 접근 제어)
 
 ## 기술 스택
 
@@ -193,7 +199,7 @@ events/{eventId}
 │   ├── workout/                # WorkoutForm, WorkoutCard, ImageUploader
 │   ├── gallery/                # GalleryCard, GalleryGrid, GalleryFilter, ImageZoomModal
 │   ├── social/                 # LikeButton, CommentSection
-│   ├── ranking/                # RankingTable
+│   ├── ranking/                # RankingTable, RankingChart
 │   └── calendar/               # CalendarHeader, CalendarGrid, EventCard, EventList, EventFormModal
 ├── composables/
 │   ├── useFirebase.ts          # Firebase Auth/Firestore/Storage/CurrentUser
@@ -246,6 +252,7 @@ events/{eventId}
 - [x] 댓글 기능 (작성/삭제, 본인 댓글만 삭제)
 - [x] 종합 순위 시스템 (전체 현황, 횟수/연속/최장 3탭, 종류별 횟수, 최근 운동일)
 - [x] 이미지 확대 보기 (UModal)
+- [x] 순위 상위 10명 Bar 차트 (금/은/동 강조)
 
 ### Phase 5: 캘린더 및 일정 관리 (완료)
 - [x] 커스텀 월간 캘린더 그리드 (CSS Grid, 일정 제목 표시)
@@ -260,6 +267,12 @@ events/{eventId}
 - [x] 번들 최적화 (Firebase/Chart.js 청크 분리)
 - [x] SPA 라우팅 지원 (404.html fallback)
 - [x] SEO 기본 설정 (title, meta description)
+
+### Phase 8: 피드백 및 관리자 기능 (완료)
+- [x] 사용자 피드백 전송 (대시보드 의견 보내기 모달)
+- [x] 관리자 피드백 관리 페이지 (페이지네이션)
+- [x] 관리자 미들웨어 (admin.ts)
+- [x] 사용자 역할(role) 지원 (admin/member)
 
 ## 보안 및 제약사항
 

@@ -50,6 +50,7 @@ import { signOut } from 'firebase/auth'
 
 const auth = useFirebaseAuth()
 const user = useCurrentUser()
+const userStore = useUserStore()
 
 const navItems = [
   { label: '대시보드', to: '/', icon: 'i-lucide-layout-dashboard' },
@@ -59,31 +60,51 @@ const navItems = [
   { label: '그룹', to: '/groups', icon: 'i-lucide-users' },
 ]
 
-const userMenuItems = computed(() => [[
-  {
-    label: '내 프로필',
-    icon: 'i-lucide-user',
-    to: user.value ? `/profile/${user.value.uid}` : undefined,
-  },
-  {
+const userMenuItems = computed(() => {
+  const items: any[] = [
+    {
+      label: '내 프로필',
+      icon: 'i-lucide-user',
+      to: user.value ? `/profile/${user.value.uid}` : undefined,
+    },
+  ]
+  if (userStore.isAdmin) {
+    items.push({
+      label: '피드백 관리',
+      icon: 'i-lucide-message-square-text',
+      to: '/admin/feedback',
+    })
+  }
+  items.push({
     label: '로그아웃',
     icon: 'i-lucide-log-out',
-    onSelect: () => handleSignOut()
-  }
-]])
+    onSelect: () => handleSignOut(),
+  })
+  return [items]
+})
 
-const mobileUserMenuItems = computed(() => [
-  {
-    label: '내 프로필',
-    icon: 'i-lucide-user',
-    to: user.value ? `/profile/${user.value.uid}` : undefined,
-  },
-  {
+const mobileUserMenuItems = computed(() => {
+  const items: any[] = [
+    {
+      label: '내 프로필',
+      icon: 'i-lucide-user',
+      to: user.value ? `/profile/${user.value.uid}` : undefined,
+    },
+  ]
+  if (userStore.isAdmin) {
+    items.push({
+      label: '피드백 관리',
+      icon: 'i-lucide-message-square-text',
+      to: '/admin/feedback',
+    })
+  }
+  items.push({
     label: '로그아웃',
     icon: 'i-lucide-log-out',
-    click: () => handleSignOut()
-  }
-])
+    click: () => handleSignOut(),
+  })
+  return items
+})
 
 const handleSignOut = async () => {
   if (auth) {
