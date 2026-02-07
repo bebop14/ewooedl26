@@ -234,36 +234,7 @@ export const useWorkoutStore = defineStore('workout', () => {
   }
 
   async function updateUserStatsAfterWorkout(workoutDateStr: string) {
-    if (!user.value) return
-
-    if (!userStore.userProfile) {
-      await userStore.loadUserProfile(user.value.uid)
-    }
-    if (!userStore.userProfile) return
-
-    const currentStats = userStore.userProfile.stats
-    const today = getLocalDateString()
-
-    let newStreak = currentStats.currentStreak
-    const lastDate = currentStats.lastWorkoutDate
-
-    // streak은 운동 날짜가 아닌 실제 기록일(오늘) 기준으로 계산
-    if (lastDate === today) {
-      // 오늘 이미 운동함 - streak 유지
-    } else if (lastDate === getYesterdayDateString()) {
-      newStreak += 1
-    } else {
-      newStreak = 1
-    }
-
-    const newLongest = Math.max(currentStats.longestStreak, newStreak)
-
-    await userStore.updateStats(user.value.uid, {
-      totalWorkouts: currentStats.totalWorkouts + 1,
-      currentStreak: newStreak,
-      longestStreak: newLongest,
-      lastWorkoutDate: today,
-    })
+    await recalculateUserStats()
   }
 
   async function fetchTopWorkoutType(): Promise<{ label: string; icon: string } | null> {
@@ -297,6 +268,11 @@ export const useWorkoutStore = defineStore('workout', () => {
 
   async function recalculateUserStats() {
     if (!db || !user.value) return
+
+    if (!userStore.userProfile) {
+      await userStore.loadUserProfile(user.value.uid)
+    }
+    if (!userStore.userProfile) return
 
     // 모든 운동 기록 조회 (날짜 내림차순)
     const q = query(
@@ -469,6 +445,7 @@ export const useWorkoutStore = defineStore('workout', () => {
     monthlyGoals,
     addWorkout,
     deleteWorkout,
+    recalculateUserStats,
     fetchTodayWorkouts,
     fetchRecentWorkouts,
     fetchWorkoutById,

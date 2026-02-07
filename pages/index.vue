@@ -81,6 +81,7 @@ async function loadDashboardData() {
     workoutStore.fetchTopWorkoutType(),
     workoutStore.fetchMonthlyTypeCounts(),
     workoutStore.fetchMonthlyGoals(),
+    workoutStore.recalculateUserStats(),
   ])
   topWorkout.value = top ?? null
 }
