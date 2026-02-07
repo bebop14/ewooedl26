@@ -24,8 +24,15 @@
             icon="i-lucide-external-link"
             @click="openInExternalBrowser"
           />
+          <UButton
+            block
+            variant="outline"
+            :label="urlCopied ? '복사 완료!' : 'URL 복사 후 브라우저에 붙여넣기'"
+            :icon="urlCopied ? 'i-lucide-check' : 'i-lucide-copy'"
+            @click="copyUrl"
+          />
           <p class="text-xs text-center text-muted">
-            또는 브라우저 메뉴(⋮)에서 "기본 브라우저로 열기"를 선택해주세요.
+            또는 우측 상단 메뉴(⋮)에서 "다른 브라우저로 열기"를 선택해주세요.
           </p>
         </template>
 
@@ -87,13 +94,42 @@ const openInExternalBrowser = () => {
   const currentUrl = window.location.href
   const ua = navigator.userAgent || ''
 
-  if (ua.includes('Android')) {
-    // Android: intent scheme으로 기본 브라우저 열기
-    window.location.href = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;end`
+  if (/KAKAOTALK/i.test(ua)) {
+    // 카카오톡 전용 scheme
+    window.location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(currentUrl)
+  } else if (/FBAN|FBAV/i.test(ua)) {
+    // 페이스북/인스타그램 - target _blank 시도
+    window.open(currentUrl, '_blank')
+  } else if (ua.includes('Android')) {
+    // Android 기타 인앱 브라우저 - intent scheme
+    window.location.href = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`
   } else {
-    // iOS: Safari에서 열기 시도
-    window.open(currentUrl, '_system')
-    // fallback - 사용자에게 수동 안내
+    // iOS 기타 - Safari 열기 시도
+    window.location.href = currentUrl
+  }
+
+  // fallback: 1초 후에도 페이지가 남아있으면 URL 복사 안내
+  setTimeout(() => {
+    urlCopied.value = false
+  }, 1000)
+}
+
+const urlCopied = ref(false)
+const copyUrl = async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href)
+    urlCopied.value = true
+    setTimeout(() => { urlCopied.value = false }, 2000)
+  } catch {
+    // clipboard API 미지원 시 fallback
+    const input = document.createElement('input')
+    input.value = window.location.href
+    document.body.appendChild(input)
+    input.select()
+    document.execCommand('copy')
+    document.body.removeChild(input)
+    urlCopied.value = true
+    setTimeout(() => { urlCopied.value = false }, 2000)
   }
 }
 
