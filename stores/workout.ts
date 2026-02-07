@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {
-  collection, doc, addDoc, getDoc, getDocs, deleteDoc, query,
+  collection, doc, addDoc, getDoc, getDocs, deleteDoc, setDoc, query,
   where, orderBy, limit, Timestamp,
 } from 'firebase/firestore'
 import type { Workout, WorkoutFormData, WeeklyStats, WeeklyTypeStats, TypeDistribution } from '~/types/workout'
@@ -28,6 +28,8 @@ export const useWorkoutStore = defineStore('workout', () => {
   const todayWorkouts = ref<Workout[]>([])
   const loading = ref(false)
   const submitting = ref(false)
+  const monthlyTypeCounts = ref<Record<string, number>>({})
+  const monthlyGoals = ref<Record<string, number>>({})
 
   async function addWorkout(formData: WorkoutFormData, imageUrls: { imageUrl: string; thumbnailUrl: string }) {
     if (!db || !user.value) throw new Error('Not authenticated')
@@ -408,11 +410,63 @@ export const useWorkoutStore = defineStore('workout', () => {
     todayWorkouts.value = todayWorkouts.value.filter(w => w.id !== workoutId)
   }
 
+  async function fetchMonthlyTypeCounts(): Promise<Record<string, number>> {
+    if (!db || !user.value) return {}
+
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+
+    const q = query(
+      collection(db, 'workouts'),
+      where('userId', '==', user.value.uid),
+      where('date', '>=', Timestamp.fromDate(startOfMonth)),
+      where('date', '<=', Timestamp.fromDate(endOfMonth)),
+    )
+
+    const snapshot = await getDocs(q)
+    const countMap: Record<string, number> = {}
+
+    snapshot.docs.forEach((d) => {
+      const type = d.data().workoutType as string
+      countMap[type] = (countMap[type] || 0) + 1
+    })
+
+    monthlyTypeCounts.value = countMap
+    return countMap
+  }
+
+  async function fetchMonthlyGoals(): Promise<Record<string, number>> {
+    if (!db || !user.value) return {}
+
+    const now = new Date()
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    const docSnap = await getDoc(doc(db, 'users', user.value.uid, 'monthlyGoals', monthKey))
+
+    if (docSnap.exists()) {
+      monthlyGoals.value = docSnap.data().goals ?? {}
+    } else {
+      monthlyGoals.value = {}
+    }
+    return monthlyGoals.value
+  }
+
+  async function saveMonthlyGoals(goals: Record<string, number>) {
+    if (!db || !user.value) return
+
+    const now = new Date()
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    await setDoc(doc(db, 'users', user.value.uid, 'monthlyGoals', monthKey), { goals })
+    monthlyGoals.value = goals
+  }
+
   return {
     workouts,
     todayWorkouts,
     loading,
     submitting,
+    monthlyTypeCounts,
+    monthlyGoals,
     addWorkout,
     deleteWorkout,
     fetchTodayWorkouts,
@@ -422,5 +476,8 @@ export const useWorkoutStore = defineStore('workout', () => {
     fetchWeeklyTypeStats,
     fetchTypeDistribution,
     fetchTopWorkoutType,
+    fetchMonthlyTypeCounts,
+    fetchMonthlyGoals,
+    saveMonthlyGoals,
   }
 })

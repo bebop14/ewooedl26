@@ -3,10 +3,12 @@
     <UCard class="mb-6">
       <div class="flex items-center gap-4">
         <UAvatar :src="user?.photoURL || undefined" :alt="user?.displayName || '사용자'" size="lg" />
-        <div>
-          <h2 class="text-2xl font-semibold">환영합니다, {{ user?.displayName }}님!</h2>
+        <div class="flex-1">
+          <h2 class="text-xl md:text-2xl font-semibold truncate">환영합니다, {{ user?.displayName }}님!</h2>
           <p class="text-sm text-muted">오늘도 화이팅!</p>
         </div>
+        <UButton label="운동 기록" icon="i-lucide-plus" size="lg" to="/workouts/new" class="shrink-0 md:hidden" />
+        <UButton label="오늘의 운동 기록하기" icon="i-lucide-plus" size="lg" to="/workouts/new" class="shrink-0 hidden md:inline-flex" />
       </div>
     </UCard>
 
@@ -18,10 +20,8 @@
       class="mb-8"
     />
 
-    <!-- 액션 버튼 -->
-    <div class="text-center mb-8">
-      <UButton label="오늘의 운동 기록하기" icon="i-lucide-plus" size="lg" to="/workouts/new" />
-    </div>
+    <!-- 운동 종류별 누적 기록 -->
+    <DashboardWorkoutGaugeBar class="mb-8" />
 
     <!-- 차트 -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -60,6 +60,8 @@ async function loadDashboardData() {
     workoutStore.fetchRecentWorkouts(5),
     eventStore.fetchUpcomingEvents(5, groupId),
     workoutStore.fetchTopWorkoutType(),
+    workoutStore.fetchMonthlyTypeCounts(),
+    workoutStore.fetchMonthlyGoals(),
   ])
   topWorkout.value = top ?? null
 }
