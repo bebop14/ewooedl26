@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, browserLocalPersistence, setPersistence } from 'firebase/auth'
 
 definePageMeta({ middleware: 'guest' })
 
@@ -133,6 +133,19 @@ const copyUrl = async () => {
   }
 }
 
+// redirect 로그인 결과 처리 (Firefox fallback 등)
+onMounted(async () => {
+  try {
+    const result = await getRedirectResult(auth)
+    if (result) {
+      router.push('/')
+    }
+  } catch (err: any) {
+    console.error('Redirect result error:', err)
+    error.value = err.message || '로그인 중 오류가 발생했습니다.'
+  }
+})
+
 // 이미 로그인되어 있으면 홈으로 이동
 watch(user, (newUser) => {
   if (newUser) {
@@ -146,11 +159,22 @@ const signInWithGoogle = async () => {
 
   try {
     const provider = new GoogleAuthProvider()
+    await setPersistence(auth, browserLocalPersistence)
     await signInWithPopup(auth, provider)
     router.push('/')
   } catch (err: any) {
     console.error('Login error:', err)
-    if (err.code === 'auth/unauthorized-domain') {
+    // sessionStorage 차단 시 (Firefox 등) redirect 방식으로 fallback
+    if (err.message?.includes('sessionStorage') || err.code === 'auth/web-storage-unsupported') {
+      try {
+        const provider = new GoogleAuthProvider()
+        await signInWithRedirect(auth, provider)
+        return
+      } catch (redirectErr: any) {
+        console.error('Redirect fallback error:', redirectErr)
+        error.value = redirectErr.message || '로그인 중 오류가 발생했습니다.'
+      }
+    } else if (err.code === 'auth/unauthorized-domain') {
       error.value = '승인되지 않은 도메인입니다. Firebase Console에서 도메인을 추가해주세요.'
     } else if (err.code === 'auth/popup-blocked') {
       error.value = '팝업이 차단되었습니다. 팝업 차단을 해제해주세요.'
