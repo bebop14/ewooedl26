@@ -79,7 +79,7 @@ onMounted(async () => {
 
 const hasGoals = computed(() => Object.keys(goals.value).length > 0)
 
-const maxCount = computed(() => Math.max(...Object.values(workoutStore.monthlyTypeCounts), 1))
+const maxCount = computed(() => Math.max(...(Object.values(workoutStore.monthlyTypeCounts) as number[]), 1))
 
 const gaugeItems = computed(() => {
   return WORKOUT_TYPES

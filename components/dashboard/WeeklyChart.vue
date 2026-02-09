@@ -26,6 +26,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
+import type { WeeklyTypeDataset } from '~/types/workout'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -59,7 +60,7 @@ onMounted(async () => {
   hasData.value = stats.datasets.length > 0
   chartData.value = {
     labels: stats.labels,
-    datasets: stats.datasets.map((ds) => ({
+    datasets: stats.datasets.map((ds: WeeklyTypeDataset) => ({
       ...ds,
       borderRadius: 4,
     })),

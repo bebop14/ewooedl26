@@ -51,6 +51,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Group } from '~/types/group'
+
 definePageMeta({ middleware: 'auth' })
 
 const groupStore = useGroupStore()
@@ -58,8 +60,8 @@ const toast = useToast()
 
 // 이미 가입한 그룹을 제외한 목록
 const availableGroups = computed(() => {
-  const myGroupIds = new Set(groupStore.myGroups.map(g => g.id))
-  return groupStore.groups.filter(g => !myGroupIds.has(g.id))
+  const myGroupIds = new Set(groupStore.myGroups.map((g: Group) => g.id))
+  return groupStore.groups.filter((g: Group) => !myGroupIds.has(g.id))
 })
 
 async function handleJoin(groupId: string) {

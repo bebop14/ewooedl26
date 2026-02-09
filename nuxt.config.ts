@@ -18,11 +18,7 @@ export default defineNuxtConfig({
   },
 
   // UI 테마 설정
-  ui: {
-    colors: {
-      primary: 'violet',
-    },
-  },
+  ui: {},
 
   // SPA for GitHub Pages
   ssr: false,

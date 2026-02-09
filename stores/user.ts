@@ -32,6 +32,7 @@ export const useUserStore = defineStore('user', () => {
 
   // 사용자 프로필 로드
   const loadUserProfile = async (userId: string) => {
+    if (!db) return
     loading.value = true
     try {
       const userDoc = await getDoc(doc(db, 'users', userId))
@@ -50,7 +51,7 @@ export const useUserStore = defineStore('user', () => {
 
   // 새 사용자 프로필 생성
   const createUserProfile = async (userId: string) => {
-    if (!currentUser.value) return
+    if (!db || !currentUser.value) return
 
     const newProfile: UserProfile = {
       displayName: currentUser.value.displayName || 'Unknown',
@@ -73,7 +74,7 @@ export const useUserStore = defineStore('user', () => {
 
   // 통계 업데이트
   const updateStats = async (userId: string, stats: Partial<UserStats>) => {
-    if (!userProfile.value) return
+    if (!db || !userProfile.value) return
 
     const updatedStats = {
       ...userProfile.value.stats,
@@ -89,7 +90,7 @@ export const useUserStore = defineStore('user', () => {
 
   // 프로필 업데이트 (이름, 사진)
   const updateUserProfile = async (userId: string, data: { displayName?: string; photoURL?: string }) => {
-    if (!userProfile.value || !currentUser.value) return
+    if (!db || !userProfile.value || !currentUser.value) return
 
     await updateDoc(doc(db, 'users', userId), data)
     await updateAuthProfile(currentUser.value, data)

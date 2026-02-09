@@ -68,6 +68,7 @@ function formatDate(ts: Timestamp) {
 }
 
 async function fetchFeedbacks() {
+  if (!db) return
   const q = query(
     collection(db, 'feedback'),
     orderBy('createdAt', 'desc'),
@@ -83,7 +84,7 @@ async function fetchFeedbacks() {
 }
 
 async function loadMore() {
-  if (!lastDoc.value) return
+  if (!db || !lastDoc.value) return
   loadingMore.value = true
   try {
     const q = query(

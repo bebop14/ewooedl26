@@ -99,7 +99,7 @@ onMounted(async () => {
 })
 
 async function handleFeedbackSubmit(content: string) {
-  if (!user.value) return
+  if (!user.value || !db) return
   try {
     await addDoc(collection(db, 'feedback'), {
       userId: user.value.uid,

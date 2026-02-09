@@ -14,19 +14,21 @@
 </template>
 
 <script setup lang="ts">
+import type { Group } from '~/types/group'
+
 const groupStore = useGroupStore()
 
 const selectedLabel = computed(() => {
   if (!groupStore.currentGroupId) {
     return '그룹 선택'
   }
-  const group = groupStore.myGroups.find(g => g.id === groupStore.currentGroupId)
+  const group = groupStore.myGroups.find((g: Group) => g.id === groupStore.currentGroupId)
   return group?.name ?? '그룹 선택'
 })
 
 const menuItems = computed(() => {
   const items = [
-    groupStore.myGroups.map(group => ({
+    groupStore.myGroups.map((group: Group) => ({
       label: group.name,
       icon: 'i-lucide-users',
       onSelect: () => groupStore.selectGroup(group.id),
@@ -47,7 +49,7 @@ onMounted(async () => {
 
     // 선택된 그룹이 없고 가입한 그룹이 있으면 첫 번째 그룹 자동 선택
     if (!groupStore.currentGroupId && groupStore.myGroups.length > 0) {
-      groupStore.selectGroup(groupStore.myGroups[0].id)
+      groupStore.selectGroup(groupStore.myGroups[0]!.id)
     }
   } catch (err) {
     console.error('Failed to fetch groups:', err)

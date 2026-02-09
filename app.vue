@@ -101,7 +101,7 @@ const mobileUserMenuItems = computed(() => {
   items.push({
     label: '로그아웃',
     icon: 'i-lucide-log-out',
-    click: () => handleSignOut(),
+    onSelect: () => handleSignOut(),
   })
   return items
 })

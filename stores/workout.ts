@@ -187,7 +187,8 @@ export const useWorkoutStore = defineStore('workout', () => {
       if (!typeByDay.has(workoutType)) {
         typeByDay.set(workoutType, Array(7).fill(0))
       }
-      typeByDay.get(workoutType)![idx] += 1
+      const arr = typeByDay.get(workoutType)!
+      arr[idx] = (arr[idx] ?? 0) + 1
     })
 
     const datasets = WORKOUT_TYPES
@@ -233,7 +234,7 @@ export const useWorkoutStore = defineStore('workout', () => {
     return { labels, counts, colors }
   }
 
-  async function updateUserStatsAfterWorkout(workoutDateStr: string) {
+  async function updateUserStatsAfterWorkout(_workoutDateStr: string) {
     await recalculateUserStats()
   }
 
@@ -287,7 +288,7 @@ export const useWorkoutStore = defineStore('workout', () => {
       await userStore.updateStats(user.value.uid, {
         totalWorkouts: 0,
         currentStreak: 0,
-        longestStreak: userStore.userProfile?.stats.longestStreak || 0,
+        longestStreak: 0,
         lastWorkoutDate: '',
       })
       return

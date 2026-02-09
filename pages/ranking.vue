@@ -52,6 +52,9 @@
 </template>
 
 <script setup lang="ts">
+import type { RankedUser } from '~/types/social'
+import type { Group } from '~/types/group'
+
 definePageMeta({ middleware: 'auth' })
 
 const user = useCurrentUser()
@@ -68,11 +71,11 @@ const activeTab = ref<'totalWorkouts' | 'currentStreak' | 'longestStreak'>('tota
 
 const totalMembers = computed(() => socialStore.rankings.length)
 const totalAllWorkouts = computed(() =>
-  socialStore.rankings.reduce((sum, u) => sum + u.totalWorkouts, 0),
+  socialStore.rankings.reduce((sum: number, u: RankedUser) => sum + u.totalWorkouts, 0),
 )
 
 function loadRankings() {
-  const myGroupIds = groupStore.myGroups.map(g => g.id)
+  const myGroupIds = groupStore.myGroups.map((g: Group) => g.id)
   socialStore.fetchRankings(groupStore.currentGroupId, myGroupIds)
 }
 
