@@ -57,6 +57,7 @@ const navItems = [
   { label: '순위', to: '/ranking', icon: 'i-lucide-trophy' },
   { label: '인증샷', to: '/gallery', icon: 'i-lucide-image' },
   { label: '캘린더', to: '/calendar', icon: 'i-lucide-calendar' },
+  { label: '통계', to: '/stats', icon: 'i-lucide-chart-line' },
   { label: '그룹', to: '/groups', icon: 'i-lucide-users' },
 ]
 

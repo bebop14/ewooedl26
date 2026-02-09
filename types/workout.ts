@@ -66,3 +66,14 @@ export interface TypeDistribution {
   counts: number[]
   colors: string[]
 }
+
+export interface MonthlyTrend {
+  labels: string[]
+  counts: number[]
+}
+
+export interface WeeklyComparison {
+  labels: string[]
+  thisWeek: number[]
+  lastWeek: number[]
+}

@@ -10,6 +10,7 @@
 - **그룹 순위**: 운동 횟수, 연속 운동일, 최장 연속 기록, 상위 10명 Bar 차트
 - **피드백**: 사용자 의견 보내기, 관리자 피드백 관리
 - **캘린더**: 행사/단체 연습 일정 관리
+- **통계**: 월별 운동 추이, 이번 주 vs 지난 주 비교, 운동 종류 분포
 - **대시보드**: 통계 카드, 주간 차트, 최근 기록
 
 ## 기술 스택
@@ -70,6 +71,7 @@ pnpm dev
 │   ├── social/             # 소셜 (LikeButton, CommentSection)
 │   ├── ranking/            # 순위 (RankingTable, RankingChart)
 │   ├── calendar/           # 캘린더 (CalendarHeader, CalendarGrid, EventCard, EventList, EventFormModal)
+│   ├── stats/              # 통계 (MonthlyTrendChart, WeeklyComparisonChart)
 │   └── group/              # 그룹 (GroupCard, GroupSelector)
 ├── composables/
 │   ├── useFirebase.ts      # Firebase Auth/Firestore/Storage composables
@@ -83,6 +85,7 @@ pnpm dev
 │   ├── login.vue           # Google 로그인
 │   ├── gallery.vue         # 인증샷 갤러리 (무한 스크롤, 필터)
 │   ├── ranking.vue         # 그룹 순위 (횟수/연속/최장, 차트)
+│   ├── stats.vue           # 운동 통계 (월별 추이, 주간 비교, 종류 분포)
 │   ├── calendar.vue        # 캘린더 - 행사/단체 연습 일정
 │   ├── admin/
 │   │   └── feedback.vue    # 피드백 관리 (관리자 전용)

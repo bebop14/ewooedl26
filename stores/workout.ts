@@ -3,7 +3,7 @@ import {
   collection, doc, addDoc, getDoc, getDocs, deleteDoc, setDoc, query,
   where, orderBy, limit, Timestamp,
 } from 'firebase/firestore'
-import type { Workout, WorkoutFormData, WeeklyStats, WeeklyTypeStats, TypeDistribution } from '~/types/workout'
+import type { Workout, WorkoutFormData, WeeklyStats, WeeklyTypeStats, TypeDistribution, MonthlyTrend, WeeklyComparison } from '~/types/workout'
 import { WORKOUT_TYPES } from '~/types/workout'
 
 function getLocalDateString(date = new Date()): string {
@@ -428,6 +428,89 @@ export const useWorkoutStore = defineStore('workout', () => {
     return monthlyGoals.value
   }
 
+  async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend> {
+    if (!db || !user.value) return { labels: [], counts: [] }
+
+    const now = new Date()
+    const startDate = new Date(now.getFullYear(), now.getMonth() - months + 1, 1)
+
+    const q = query(
+      collection(db, 'workouts'),
+      where('userId', '==', user.value.uid),
+      where('date', '>=', Timestamp.fromDate(startDate)),
+      orderBy('date', 'asc'),
+    )
+
+    const snapshot = await getDocs(q)
+
+    // 월별 그룹핑
+    const monthCounts = new Map<string, number>()
+    for (let i = 0; i < months; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - months + 1 + i, 1)
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+      monthCounts.set(key, 0)
+    }
+
+    snapshot.docs.forEach((d) => {
+      const workoutDate = (d.data().date as Timestamp).toDate()
+      const key = `${workoutDate.getFullYear()}-${String(workoutDate.getMonth() + 1).padStart(2, '0')}`
+      if (monthCounts.has(key)) {
+        monthCounts.set(key, monthCounts.get(key)! + 1)
+      }
+    })
+
+    const labels: string[] = []
+    const counts: number[] = []
+    monthCounts.forEach((count, key) => {
+      const month = parseInt(key.split('-')[1]!)
+      labels.push(`${month}월`)
+      counts.push(count)
+    })
+
+    return { labels, counts }
+  }
+
+  async function fetchWeeklyComparison(): Promise<WeeklyComparison> {
+    const labels = ['월', '화', '수', '목', '금', '토', '일']
+    if (!db || !user.value) return { labels, thisWeek: Array(7).fill(0), lastWeek: Array(7).fill(0) }
+
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+
+    const thisMonday = new Date(now)
+    thisMonday.setDate(now.getDate() + mondayOffset)
+    thisMonday.setHours(0, 0, 0, 0)
+
+    const lastMonday = new Date(thisMonday)
+    lastMonday.setDate(thisMonday.getDate() - 7)
+
+    const q = query(
+      collection(db, 'workouts'),
+      where('userId', '==', user.value.uid),
+      where('date', '>=', Timestamp.fromDate(lastMonday)),
+      orderBy('date', 'asc'),
+    )
+
+    const snapshot = await getDocs(q)
+    const thisWeek = Array(7).fill(0)
+    const lastWeek = Array(7).fill(0)
+
+    snapshot.docs.forEach((d) => {
+      const workoutDate = (d.data().date as Timestamp).toDate()
+      let idx = workoutDate.getDay() - 1
+      if (idx < 0) idx = 6
+
+      if (workoutDate >= thisMonday) {
+        thisWeek[idx] += 1
+      } else {
+        lastWeek[idx] += 1
+      }
+    })
+
+    return { labels, thisWeek, lastWeek }
+  }
+
   async function saveMonthlyGoals(goals: Record<string, number>) {
     if (!db || !user.value) return
 
@@ -457,5 +540,7 @@ export const useWorkoutStore = defineStore('workout', () => {
     fetchMonthlyTypeCounts,
     fetchMonthlyGoals,
     saveMonthlyGoals,
+    fetchMonthlyTrend,
+    fetchWeeklyComparison,
   }
 })
