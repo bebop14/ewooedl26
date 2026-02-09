@@ -37,91 +37,170 @@
     <!-- 사용자 목록 -->
     <UCard class="mb-8">
       <template #header>
-        <h2 class="text-lg font-semibold">사용자 목록 ({{ users.length }}명)</h2>
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-lg font-semibold shrink-0">사용자 목록 ({{ filteredUsers.length }}명)</h2>
+          <UInput
+            v-model="userSearch"
+            placeholder="이름 또는 이메일 검색"
+            icon="i-lucide-search"
+            size="sm"
+            class="max-w-xs"
+          />
+        </div>
       </template>
 
       <div v-if="loading" class="text-center py-8">
         <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
       </div>
 
-      <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
-        <div
-          v-for="u in users"
-          :key="u.id"
-          class="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-        >
-          <UAvatar
-            :src="u.photoURL || undefined"
-            :alt="u.displayName"
-            size="sm"
-          />
-          <div class="flex-1 min-w-0">
-            <p class="font-medium truncate">{{ u.displayName }}</p>
-            <p class="text-xs text-muted truncate">{{ u.email }}</p>
-          </div>
-          <div class="text-right text-xs text-muted hidden sm:block">
-            <p>운동 {{ u.stats?.totalWorkouts ?? 0 }}회</p>
-            <p>{{ formatDate(u.createdAt) }}</p>
-          </div>
-          <UBadge
-            :color="u.role === 'admin' ? 'primary' : 'neutral'"
-            variant="subtle"
+      <template v-else>
+        <div v-if="filteredUsers.length === 0" class="text-center py-8 text-muted">
+          검색 결과가 없습니다.
+        </div>
+
+        <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
+          <div
+            v-for="u in paginatedUsers"
+            :key="u.id"
+            class="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
           >
-            {{ u.role === 'admin' ? '관리자' : '멤버' }}
-          </UBadge>
+            <UAvatar
+              :src="u.photoURL || undefined"
+              :alt="u.displayName"
+              size="sm"
+            />
+            <div class="flex-1 min-w-0">
+              <p class="font-medium truncate">{{ u.displayName }}</p>
+              <p class="text-xs text-muted truncate">{{ u.email }}</p>
+              <div v-if="getUserGroups(u).length" class="flex flex-wrap gap-1 mt-1">
+                <UBadge
+                  v-for="g in getUserGroups(u)"
+                  :key="g.id"
+                  variant="subtle"
+                  color="neutral"
+                  size="xs"
+                >
+                  {{ g.name }}
+                </UBadge>
+              </div>
+            </div>
+            <div class="text-right text-xs text-muted hidden sm:block">
+              <p>운동 {{ u.stats?.totalWorkouts ?? 0 }}회</p>
+              <p>{{ formatDate(u.createdAt) }}</p>
+            </div>
+            <UBadge
+              :color="u.role === 'admin' ? 'primary' : 'neutral'"
+              variant="subtle"
+            >
+              {{ u.role === 'admin' ? '관리자' : '멤버' }}
+            </UBadge>
+            <UButton
+              :label="u.role === 'admin' ? '멤버로' : '관리자로'"
+              size="xs"
+              variant="outline"
+              :loading="togglingUserId === u.id"
+              @click="toggleUserRole(u)"
+            />
+          </div>
+        </div>
+
+        <!-- 사용자 페이지네이션 -->
+        <div v-if="userTotalPages > 1" class="flex items-center justify-center gap-2 pt-4">
           <UButton
-            :label="u.role === 'admin' ? '멤버로' : '관리자로'"
+            icon="i-lucide-chevron-left"
             size="xs"
             variant="outline"
-            :loading="togglingUserId === u.id"
-            @click="toggleUserRole(u)"
+            :disabled="userPage === 1"
+            @click="userPage--"
+          />
+          <span class="text-sm text-muted">{{ userPage }} / {{ userTotalPages }}</span>
+          <UButton
+            icon="i-lucide-chevron-right"
+            size="xs"
+            variant="outline"
+            :disabled="userPage === userTotalPages"
+            @click="userPage++"
           />
         </div>
-      </div>
+      </template>
     </UCard>
 
     <!-- 그룹 목록 -->
     <UCard>
       <template #header>
-        <h2 class="text-lg font-semibold">그룹 목록 ({{ groups.length }}개)</h2>
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-lg font-semibold shrink-0">그룹 목록 ({{ filteredGroups.length }}개)</h2>
+          <UInput
+            v-model="groupSearch"
+            placeholder="그룹 이름 검색"
+            icon="i-lucide-search"
+            size="sm"
+            class="max-w-xs"
+          />
+        </div>
       </template>
 
       <div v-if="loading" class="text-center py-8">
         <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
       </div>
 
-      <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
-        <div
-          v-for="g in groups"
-          :key="g.id"
-          class="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-        >
-          <UAvatar
-            :src="g.imageUrl || undefined"
-            :alt="g.name"
-            size="sm"
+      <template v-else>
+        <div v-if="filteredGroups.length === 0" class="text-center py-8 text-muted">
+          검색 결과가 없습니다.
+        </div>
+
+        <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
+          <div
+            v-for="g in paginatedGroups"
+            :key="g.id"
+            class="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
           >
-            <template #fallback>
-              <UIcon name="i-lucide-users" />
-            </template>
-          </UAvatar>
-          <div class="flex-1 min-w-0">
-            <NuxtLink :to="`/groups/${g.id}`" class="font-medium hover:text-primary-500 truncate block">
-              {{ g.name }}
-            </NuxtLink>
-            <p class="text-xs text-muted">
-              멤버 {{ g.memberCount }}명 &middot; {{ g.createdByName }} &middot; {{ formatTimestamp(g.createdAt) }}
-            </p>
+            <UAvatar
+              :src="g.imageUrl || undefined"
+              :alt="g.name"
+              size="sm"
+            >
+              <template #fallback>
+                <UIcon name="i-lucide-users" />
+              </template>
+            </UAvatar>
+            <div class="flex-1 min-w-0">
+              <NuxtLink :to="`/groups/${g.id}`" class="font-medium hover:text-primary-500 truncate block">
+                {{ g.name }}
+              </NuxtLink>
+              <p class="text-xs text-muted">
+                멤버 {{ g.memberCount }}명 &middot; {{ g.createdByName }} &middot; {{ formatTimestamp(g.createdAt) }}
+              </p>
+            </div>
+            <UButton
+              icon="i-lucide-trash-2"
+              size="xs"
+              variant="outline"
+              color="error"
+              @click="confirmDeleteGroup(g)"
+            />
           </div>
+        </div>
+
+        <!-- 그룹 페이지네이션 -->
+        <div v-if="groupTotalPages > 1" class="flex items-center justify-center gap-2 pt-4">
           <UButton
-            icon="i-lucide-trash-2"
+            icon="i-lucide-chevron-left"
             size="xs"
             variant="outline"
-            color="error"
-            @click="confirmDeleteGroup(g)"
+            :disabled="groupPage === 1"
+            @click="groupPage--"
+          />
+          <span class="text-sm text-muted">{{ groupPage }} / {{ groupTotalPages }}</span>
+          <UButton
+            icon="i-lucide-chevron-right"
+            size="xs"
+            variant="outline"
+            :disabled="groupPage === groupTotalPages"
+            @click="groupPage++"
           />
         </div>
-      </div>
+      </template>
     </UCard>
 
     <!-- 그룹 삭제 확인 모달 -->
@@ -157,6 +236,8 @@ interface AdminUser extends UserProfile {
   id: string
 }
 
+const PAGE_SIZE = 20
+
 const users = ref<AdminUser[]>([])
 const groups = ref<Group[]>([])
 const loading = ref(true)
@@ -165,9 +246,63 @@ const showDeleteConfirm = ref(false)
 const groupToDelete = ref<Group | null>(null)
 const deleting = ref(false)
 
+// 검색
+const userSearch = ref('')
+const groupSearch = ref('')
+
+// 페이지네이션
+const userPage = ref(1)
+const groupPage = ref(1)
+
+// 검색 시 페이지 초기화
+watch(userSearch, () => { userPage.value = 1 })
+watch(groupSearch, () => { groupPage.value = 1 })
+
+const filteredUsers = computed(() => {
+  const q = userSearch.value.trim().toLowerCase()
+  if (!q) return users.value
+  return users.value.filter(u =>
+    u.displayName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
+  )
+})
+
+const userTotalPages = computed(() => Math.max(1, Math.ceil(filteredUsers.value.length / PAGE_SIZE)))
+
+const paginatedUsers = computed(() => {
+  const start = (userPage.value - 1) * PAGE_SIZE
+  return filteredUsers.value.slice(start, start + PAGE_SIZE)
+})
+
+const filteredGroups = computed(() => {
+  const q = groupSearch.value.trim().toLowerCase()
+  if (!q) return groups.value
+  return groups.value.filter(g => g.name.toLowerCase().includes(q))
+})
+
+const groupTotalPages = computed(() => Math.max(1, Math.ceil(filteredGroups.value.length / PAGE_SIZE)))
+
+const paginatedGroups = computed(() => {
+  const start = (groupPage.value - 1) * PAGE_SIZE
+  return filteredGroups.value.slice(start, start + PAGE_SIZE)
+})
+
 const totalWorkouts = computed(() =>
   users.value.reduce((sum, u) => sum + (u.stats?.totalWorkouts ?? 0), 0),
 )
+
+// 그룹 ID → 그룹 객체 맵
+const groupMap = computed(() => {
+  const map = new Map<string, Group>()
+  for (const g of groups.value) map.set(g.id, g)
+  return map
+})
+
+function getUserGroups(u: AdminUser) {
+  if (!u.groupIds?.length) return []
+  return u.groupIds
+    .map(id => groupMap.value.get(id))
+    .filter((g): g is Group => !!g)
+}
 
 function formatDate(dateStr: string) {
   if (!dateStr) return ''
