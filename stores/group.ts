@@ -244,6 +244,60 @@ export const useGroupStore = defineStore('group', () => {
     }
   }
 
+  // 그룹 삭제 (멤버가 없을 때)
+  async function deleteGroup(groupId: string) {
+    if (!db || !user.value) throw new Error('Not authenticated')
+
+    submitting.value = true
+    try {
+      // 하위 멤버 문서 모두 삭제
+      const membersSnapshot = await getDocs(collection(db, 'groups', groupId, 'members'))
+      await Promise.all(membersSnapshot.docs.map(d => deleteDoc(d.ref)))
+
+      // 그룹 문서 삭제
+      await deleteDoc(doc(db, 'groups', groupId))
+
+      // 사용자의 groupIds에서 제거
+      const userRef = doc(db, 'users', user.value.uid)
+      const userDoc = await getDoc(userRef)
+      const currentGroupIds = userDoc.data()?.groupIds ?? []
+      await updateDoc(userRef, {
+        groupIds: currentGroupIds.filter((id: string) => id !== groupId),
+      })
+
+      // 현재 선택된 그룹이면 초기화
+      if (currentGroupId.value === groupId) {
+        currentGroupId.value = null
+      }
+
+      // 로컬 상태 업데이트
+      myGroups.value = myGroups.value.filter(g => g.id !== groupId)
+      groups.value = groups.value.filter(g => g.id !== groupId)
+    } finally {
+      submitting.value = false
+    }
+  }
+
+  // 그룹 정보 수정
+  async function updateGroup(groupId: string, data: { name?: string; description?: string; imageUrl?: string }) {
+    if (!db || !user.value) throw new Error('Not authenticated')
+
+    submitting.value = true
+    try {
+      await updateDoc(doc(db, 'groups', groupId), data)
+
+      // 로컬 상태 업데이트
+      const updateLocal = (g: Group) => {
+        if (g.id !== groupId) return g
+        return { ...g, ...data }
+      }
+      myGroups.value = myGroups.value.map(updateLocal)
+      groups.value = groups.value.map(updateLocal)
+    } finally {
+      submitting.value = false
+    }
+  }
+
   // 현재 그룹 선택
   function selectGroup(groupId: string | null) {
     currentGroupId.value = groupId
@@ -279,6 +333,43 @@ export const useGroupStore = defineStore('group', () => {
     return memberDoc.data()?.role === 'admin'
   }
 
+  // 멤버 역할 변경 (admin ↔ member)
+  async function updateMemberRole(groupId: string, userId: string, role: 'admin' | 'member') {
+    if (!db || !user.value) throw new Error('Not authenticated')
+
+    await updateDoc(doc(db, 'groups', groupId, 'members', userId), { role })
+
+    // 로컬 상태 업데이트
+    const member = groupMembers.value.find(m => m.userId === userId)
+    if (member) member.role = role
+  }
+
+  // 멤버 강퇴
+  async function removeMember(groupId: string, userId: string) {
+    if (!db || !user.value) throw new Error('Not authenticated')
+
+    // 멤버 문서 삭제
+    await deleteDoc(doc(db, 'groups', groupId, 'members', userId))
+
+    // 대상 사용자의 groupIds에서 해당 그룹 제거
+    const targetUserRef = doc(db, 'users', userId)
+    const targetUserDoc = await getDoc(targetUserRef)
+    if (targetUserDoc.exists()) {
+      const currentGroupIds = targetUserDoc.data()?.groupIds ?? []
+      await updateDoc(targetUserRef, {
+        groupIds: currentGroupIds.filter((id: string) => id !== groupId),
+      })
+    }
+
+    // 그룹 memberCount 감소
+    await updateDoc(doc(db, 'groups', groupId), {
+      memberCount: increment(-1),
+    })
+
+    // 로컬 상태 업데이트
+    groupMembers.value = groupMembers.value.filter(m => m.userId !== userId)
+  }
+
   return {
     groups,
     myGroups,
@@ -295,10 +386,14 @@ export const useGroupStore = defineStore('group', () => {
     createGroup,
     joinGroup,
     leaveGroup,
+    deleteGroup,
+    updateGroup,
     selectGroup,
     restoreSelectedGroup,
     isMemberOf,
     isAdminOf,
+    updateMemberRole,
+    removeMember,
     DEFAULT_GROUP_ID,
   }
 })

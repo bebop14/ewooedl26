@@ -70,9 +70,9 @@ const userMenuItems = computed(() => {
   ]
   if (userStore.isAdmin) {
     items.push({
-      label: '피드백 관리',
-      icon: 'i-lucide-message-square-text',
-      to: '/admin/feedback',
+      label: '관리자',
+      icon: 'i-lucide-shield',
+      to: '/admin',
     })
   }
   items.push({
@@ -93,9 +93,9 @@ const mobileUserMenuItems = computed(() => {
   ]
   if (userStore.isAdmin) {
     items.push({
-      label: '피드백 관리',
-      icon: 'i-lucide-message-square-text',
-      to: '/admin/feedback',
+      label: '관리자',
+      icon: 'i-lucide-shield',
+      to: '/admin',
     })
   }
   items.push({
