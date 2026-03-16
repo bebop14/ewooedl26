@@ -60,6 +60,7 @@ definePageMeta({ middleware: 'auth' })
 const user = useCurrentUser()
 const socialStore = useSocialStore()
 const groupStore = useGroupStore()
+const initialized = ref(false)
 
 const tabs = [
   { value: 'totalWorkouts' as const, label: '운동 횟수', icon: 'i-lucide-dumbbell' },
@@ -75,6 +76,7 @@ const totalAllWorkouts = computed(() =>
 )
 
 function loadRankings() {
+  if (!initialized.value) return
   const myGroupIds = groupStore.myGroups.map((g: Group) => g.id)
   socialStore.fetchRankings(groupStore.currentGroupId, myGroupIds)
 }
@@ -85,7 +87,14 @@ watch(() => groupStore.currentGroupId, () => {
 })
 
 onMounted(async () => {
-  await groupStore.fetchMyGroups()
+  if (groupStore.myGroups.length === 0) {
+    await groupStore.fetchMyGroups()
+    groupStore.restoreSelectedGroup()
+    if (!groupStore.currentGroupId && groupStore.myGroups.length > 0) {
+      groupStore.selectGroup(groupStore.myGroups[0]!.id)
+    }
+  }
+  initialized.value = true
   loadRankings()
 })
 </script>
