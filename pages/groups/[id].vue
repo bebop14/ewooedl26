@@ -27,7 +27,7 @@
               <div class="flex items-center gap-4 text-sm text-muted">
                 <span class="flex items-center gap-1">
                   <UIcon name="i-lucide-users" />
-                  {{ group.memberCount }}명
+                  {{ groupStore.groupMembers.length }}명
                 </span>
                 <span class="flex items-center gap-1">
                   <UIcon name="i-lucide-user" />
@@ -365,6 +365,12 @@ async function loadGroup() {
     if (group.value) {
       await groupStore.fetchGroupMembers(groupId.value)
       isAdmin.value = await groupStore.isAdminOf(groupId.value)
+      // memberCount가 실제 멤버 수와 다를 경우 동기화
+      const actualCount = groupStore.groupMembers.length
+      if (group.value.memberCount !== actualCount) {
+        await groupStore.syncMemberCount(groupId.value)
+        group.value = { ...group.value, memberCount: actualCount }
+      }
     }
   } finally {
     loading.value = false

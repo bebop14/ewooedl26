@@ -344,6 +344,19 @@ export const useGroupStore = defineStore('group', () => {
     if (member) member.role = role
   }
 
+  // memberCount를 실제 서브컬렉션 수와 동기화
+  async function syncMemberCount(groupId: string) {
+    if (!db) return
+    const snapshot = await getDocs(collection(db, 'groups', groupId, 'members'))
+    const actualCount = snapshot.size
+    const groupRef = doc(db, 'groups', groupId)
+    const groupSnap = await getDoc(groupRef)
+    if (groupSnap.exists() && groupSnap.data().memberCount !== actualCount) {
+      await updateDoc(groupRef, { memberCount: actualCount })
+    }
+    return actualCount
+  }
+
   // 멤버 강퇴
   async function removeMember(groupId: string, userId: string) {
     if (!db || !user.value) throw new Error('Not authenticated')
@@ -394,6 +407,7 @@ export const useGroupStore = defineStore('group', () => {
     isAdminOf,
     updateMemberRole,
     removeMember,
+    syncMemberCount,
     DEFAULT_GROUP_ID,
   }
 })
