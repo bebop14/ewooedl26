@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {
-  collection, doc, addDoc, deleteDoc, getDocs, updateDoc,
+  collection, doc, addDoc, deleteDoc, getDoc, getDocs, updateDoc,
   query, where, orderBy, limit, startAfter,
   Timestamp, increment, writeBatch,
   type DocumentSnapshot, type QueryDocumentSnapshot,
@@ -27,12 +27,13 @@ export const useSocialStore = defineStore('social', () => {
     collectionPath: string,
     field: string,
     ids: string[],
+    extraConstraints: ReturnType<typeof where>[] = [],
   ): Promise<QueryDocumentSnapshot[]> {
     if (!db) return []
     const chunks = chunkArray(ids, 30)
     const results = await Promise.all(
       chunks.map(chunk =>
-        getDocs(query(collection(db, collectionPath), where(field, 'in', chunk))),
+        getDocs(query(collection(db, collectionPath), where(field, 'in', chunk), ...extraConstraints)),
       ),
     )
     return results.flatMap(r => r.docs)
@@ -236,7 +237,10 @@ export const useSocialStore = defineStore('social', () => {
 
       if (groupId) {
         // 특정 그룹의 멤버들만 가져오기
-        const membersSnapshot = await getDocs(collection(db, 'groups', groupId, 'members'))
+        const [groupSnap, membersSnapshot] = await Promise.all([
+          getDoc(doc(db, 'groups', groupId)),
+          getDocs(collection(db, 'groups', groupId, 'members')),
+        ])
         const memberIds = membersSnapshot.docs.map(d => d.id)
 
         if (memberIds.length === 0) {
@@ -244,10 +248,16 @@ export const useSocialStore = defineStore('social', () => {
           return
         }
 
+        // 그룹 생성일 이후의 운동만 조회
+        const groupCreatedAt = groupSnap.data()?.createdAt as Timestamp | undefined
+        const workoutFilters = groupCreatedAt
+          ? [where('date', '>=', groupCreatedAt)]
+          : []
+
         // 사용자 정보 + 운동 데이터 병렬 조회
         const [users, workouts] = await Promise.all([
           queryInChunks('users', '__name__', memberIds),
-          queryInChunks('workouts', 'userId', memberIds),
+          queryInChunks('workouts', 'userId', memberIds, workoutFilters),
         ])
         userDocs = users
         workoutDocs = workouts
