@@ -130,9 +130,16 @@ export const useSocialStore = defineStore('social', () => {
         constraints.unshift(where('workoutType', '==', filters.workoutType))
       }
 
-      // 그룹 필터 추가
+      // 그룹 필터: 그룹 멤버들의 운동만 표시
       if (filters?.groupId) {
-        constraints.unshift(where('groupIds', 'array-contains', filters.groupId))
+        const membersSnapshot = await getDocs(collection(db, 'groups', filters.groupId, 'members'))
+        const memberIds = membersSnapshot.docs.map(d => d.id)
+        if (memberIds.length === 0) {
+          galleryHasMore.value = false
+          return
+        }
+        // Firestore 'in' 쿼리는 최대 30개까지 지원
+        constraints.unshift(where('userId', 'in', memberIds.slice(0, 30)))
       }
 
       if (lastGalleryDoc.value) {
@@ -201,12 +208,14 @@ export const useSocialStore = defineStore('social', () => {
         }
         usersSnapshot = { docs: userDocs }
 
-        // 해당 그룹의 운동만 가져오기
-        const workoutsQ = query(
-          collection(db, 'workouts'),
-          where('groupIds', 'array-contains', groupId),
-        )
-        workoutsSnapshot = await getDocs(workoutsQ)
+        // 그룹 멤버들의 전체 운동 가져오기 (멤버 ID로 필터)
+        const workoutDocs: any[] = []
+        for (const chunk of chunks) {
+          const wq = query(collection(db, 'workouts'), where('userId', 'in', chunk))
+          const ws = await getDocs(wq)
+          workoutDocs.push(...ws.docs)
+        }
+        workoutsSnapshot = { docs: workoutDocs }
       } else if (myGroupIds && myGroupIds.length > 0) {
         // "전체 그룹" 선택 시: 내가 속한 모든 그룹의 멤버들만 표시
         const allMemberIds = new Set<string>()
@@ -237,8 +246,14 @@ export const useSocialStore = defineStore('social', () => {
         }
         usersSnapshot = { docs: userDocs }
 
-        // 전체 운동 데이터 (내 그룹 멤버들 것만 필터링)
-        workoutsSnapshot = await getDocs(collection(db, 'workouts'))
+        // 멤버들의 전체 운동 데이터 (멤버 ID로 필터)
+        const workoutDocs: any[] = []
+        for (const chunk of chunks) {
+          const wq = query(collection(db, 'workouts'), where('userId', 'in', chunk))
+          const ws = await getDocs(wq)
+          workoutDocs.push(...ws.docs)
+        }
+        workoutsSnapshot = { docs: workoutDocs }
       } else {
         // 그룹이 없으면 빈 결과
         rankings.value = []
@@ -288,10 +303,10 @@ export const useSocialStore = defineStore('social', () => {
           typeStats.sort((a, b) => b.count - a.count)
         }
 
-        // 그룹 필터 시에는 해당 그룹 내 운동 횟수 사용
+        // 그룹 필터 시에는 해당 그룹 내 운동 횟수, 전체 모드는 실제 집계값 우선
         const totalWorkouts = groupId
           ? (workoutData?.totalCount ?? 0)
-          : (data.stats?.totalWorkouts ?? 0)
+          : (workoutData?.totalCount ?? data.stats?.totalWorkouts ?? 0)
 
         return {
           userId: d.id,

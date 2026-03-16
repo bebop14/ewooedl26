@@ -27,6 +27,7 @@ definePageMeta({ middleware: 'auth' })
 const socialStore = useSocialStore()
 const groupStore = useGroupStore()
 const selectedType = ref<string | null>(null)
+const initialized = ref(false)
 
 function getFilters() {
   return {
@@ -35,16 +36,16 @@ function getFilters() {
   }
 }
 
-watch(selectedType, () => {
+function reloadGallery() {
+  if (!initialized.value) return
   socialStore.resetGallery()
   socialStore.fetchGalleryPage(12, getFilters())
-})
+}
+
+watch(selectedType, reloadGallery)
 
 // 그룹 변경 시 데이터 리로드
-watch(() => groupStore.currentGroupId, () => {
-  socialStore.resetGallery()
-  socialStore.fetchGalleryPage(12, getFilters())
-})
+watch(() => groupStore.currentGroupId, reloadGallery)
 
 function loadMore() {
   if (socialStore.galleryHasMore && !socialStore.galleryLoading) {
@@ -52,8 +53,17 @@ function loadMore() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 그룹 데이터가 로드될 때까지 대기 후 갤러리 fetch
+  if (groupStore.myGroups.length === 0) {
+    await groupStore.fetchMyGroups()
+    groupStore.restoreSelectedGroup()
+    if (!groupStore.currentGroupId && groupStore.myGroups.length > 0) {
+      groupStore.selectGroup(groupStore.myGroups[0]!.id)
+    }
+  }
   socialStore.resetGallery()
-  socialStore.fetchGalleryPage(12, getFilters())
+  await socialStore.fetchGalleryPage(12, getFilters())
+  initialized.value = true
 })
 </script>
