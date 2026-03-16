@@ -1,1 +1,0 @@
-import{J as a,m as o,q as s,K as u,L as i}from"./BcOezpzm.js";import"./C2OSPBr-.js";import"./D9p9wtnn.js";const l=a(async()=>{let e,t;const r=o();if(!r)return s("/login");if(!([e,t]=u(()=>i(r)),e=await e,t(),e))return s("/login")});export{l as default};
