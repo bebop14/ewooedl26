@@ -1,0 +1,1 @@
+import{J as i,h as o,e as u,q as a,K as n}from"./BcOezpzm.js";import"./C2OSPBr-.js";import"./D9p9wtnn.js";const m=i(async()=>{let r,s;const e=o(),t=u();if(!t.value)return a("/");if(e.userProfile||([r,s]=n(()=>e.loadUserProfile(t.value.uid)),await r,s()),!e.isAdmin)return a("/")});export{m as default};
