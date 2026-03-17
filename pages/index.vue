@@ -1,14 +1,15 @@
 <template>
   <UContainer class="py-8">
     <UCard class="mb-6">
-      <div class="flex items-center gap-4">
-        <UAvatar :src="user?.photoURL || undefined" :alt="user?.displayName || '사용자'" size="lg" />
-        <div class="flex-1">
-          <h2 class="text-xl md:text-2xl font-semibold truncate">환영합니다, {{ user?.displayName }}님!</h2>
+      <div class="flex items-center gap-3">
+        <UAvatar :src="user?.photoURL || undefined" :alt="user?.displayName || '사용자'" size="lg" class="shrink-0" />
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg md:text-2xl font-semibold truncate">환영합니다, {{ user?.displayName }}님!</h2>
           <p class="text-sm text-muted">오늘도 화이팅!</p>
         </div>
-        <UButton label="운동 기록" icon="i-lucide-plus" size="lg" to="/workouts/new" class="shrink-0 md:hidden" />
-        <UButton label="오늘의 운동 기록하기" icon="i-lucide-plus" size="lg" to="/workouts/new" class="shrink-0 hidden md:inline-flex" />
+      </div>
+      <div class="mt-3">
+        <UButton label="운동 기록하기" icon="i-lucide-plus" size="lg" to="/workouts/new" block />
       </div>
     </UCard>
 

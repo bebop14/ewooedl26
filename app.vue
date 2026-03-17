@@ -1,6 +1,11 @@
 <template>
   <UApp>
-    <UHeader v-if="user" title="EDL 이우애용 2026 오운완" to="/">
+    <UHeader v-if="user" to="/">
+      <template #title>
+        <span class="hidden sm:inline">EDL 이우애용 2026 오운완</span>
+        <span class="sm:hidden">EDL 오운완</span>
+      </template>
+
       <UNavigationMenu :items="navItems" />
 
       <template #right>
@@ -24,7 +29,7 @@
           :src="user.photoURL || undefined"
           :alt="user.displayName || '사용자'"
           size="sm"
-          class="sm:hidden mr-2"
+          class="sm:hidden"
         />
       </template>
 
