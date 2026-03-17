@@ -7,8 +7,9 @@
           <h2 class="text-lg md:text-2xl font-semibold truncate">환영합니다, {{ user?.displayName }}님!</h2>
           <p class="text-sm text-muted">오늘도 화이팅!</p>
         </div>
+        <UButton label="오늘의 운동 기록하기" icon="i-lucide-plus" size="lg" to="/workouts/new" class="shrink-0 hidden md:inline-flex" />
       </div>
-      <div class="mt-3">
+      <div class="mt-3 md:hidden">
         <UButton label="운동 기록하기" icon="i-lucide-plus" size="lg" to="/workouts/new" block />
       </div>
     </UCard>
