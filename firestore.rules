@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 앱 관리자 여부 헬퍼
+    function isAppAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // 사용자
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null
+        && (request.auth.uid == userId || isAppAdmin());
+
+      match /monthlyGoals/{monthId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // 운동 기록
+    match /workouts/{workoutId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      // 소유자는 모든 필드 수정 가능, 다른 인증 사용자는 likes/comments 카운터만 수정 가능
+      allow update: if request.auth != null
+        && (resource.data.userId == request.auth.uid
+            || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'comments']));
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // 좋아요
+    match /likes/{likeId} {
+      allow read: if request.auth != null;
+      allow create, delete: if request.auth != null;
+    }
+
+    // 댓글
+    match /comments/{commentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // 이벤트
+    match /events/{eventId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+        && resource.data.createdBy == request.auth.uid;
+    }
+
+    // 그룹
+    match /groups/{groupId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+        && (resource.data.createdBy == request.auth.uid || isAppAdmin());
+
+      match /members/{memberId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null;
+      }
+    }
+
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && isAppAdmin();
+    }
+  }
+}

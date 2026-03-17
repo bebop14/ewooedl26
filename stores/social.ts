@@ -11,6 +11,7 @@ import { WORKOUT_TYPES } from '~/types/workout'
 
 /** 배열을 size 크기의 청크로 분할 */
 function chunkArray<T>(arr: T[], size: number): T[][] {
+  if (!size || size <= 0) return []
   const chunks: T[][] = []
   for (let i = 0; i < arr.length; i += size) {
     chunks.push(arr.slice(i, i + size))
