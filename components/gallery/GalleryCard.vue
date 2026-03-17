@@ -1,22 +1,12 @@
 <template>
   <NuxtLink :to="`/workouts/${workout.id}`" class="block group">
-    <div class="relative overflow-hidden rounded-lg">
+    <div class="overflow-hidden rounded-lg">
       <img
         :src="workout.thumbnailUrl"
         :alt="typeLabel"
         class="w-full aspect-square object-cover transition-transform group-hover:scale-105"
         loading="lazy"
       />
-      <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white">
-        <div class="flex items-center gap-1">
-          <UIcon name="i-lucide-heart" />
-          <span>{{ workout.likes }}</span>
-        </div>
-        <div class="flex items-center gap-1">
-          <UIcon name="i-lucide-message-circle" />
-          <span>{{ workout.comments }}</span>
-        </div>
-      </div>
     </div>
     <div class="mt-2 flex items-center gap-2">
       <UAvatar :src="workout.userPhoto || undefined" :alt="workout.userName" size="xs" />
@@ -24,6 +14,14 @@
       <span class="text-xs text-gray-400 ml-auto flex items-center gap-1">
         <UIcon :name="typeIcon" class="text-sm" />
         {{ typeLabel }}
+      </span>
+      <span class="text-xs text-gray-400 flex items-center gap-0.5">
+        <UIcon name="i-lucide-heart" class="text-sm" />
+        {{ workout.likes }}
+      </span>
+      <span class="text-xs text-gray-400 flex items-center gap-0.5">
+        <UIcon name="i-lucide-message-circle" class="text-sm" />
+        {{ workout.comments }}
       </span>
     </div>
   </NuxtLink>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import {
   collection, doc, addDoc, deleteDoc, getDoc, getDocs, setDoc, updateDoc,
-  query, where, orderBy, Timestamp, increment,
+  query, where, orderBy, Timestamp, increment, arrayUnion,
 } from 'firebase/firestore'
 import type { Group, GroupMember, GroupFormData } from '~/types/group'
 
@@ -210,6 +210,42 @@ export const useGroupStore = defineStore('group', () => {
     }
   }
 
+  // 관리자가 임의의 사용자를 그룹에 추가
+  async function addMemberToGroup(groupId: string, userId: string, displayName: string, photoURL: string) {
+    if (!db || !user.value) throw new Error('Not authenticated')
+
+    // 이미 멤버인지 확인
+    const memberRef = doc(db, 'groups', groupId, 'members', userId)
+    const memberDoc = await getDoc(memberRef)
+
+    if (memberDoc.exists()) {
+      // 멤버 서브컬렉션에는 있지만 groupIds에 없는 불일치 상태 → groupIds만 동기화
+      await updateDoc(doc(db, 'users', userId), {
+        groupIds: arrayUnion(groupId),
+      })
+      return
+    }
+
+    // 멤버 추가
+    await setDoc(memberRef, {
+      userId,
+      displayName,
+      photoURL,
+      joinedAt: Timestamp.now(),
+      role: 'member',
+    })
+
+    // 그룹의 memberCount 증가
+    await updateDoc(doc(db, 'groups', groupId), {
+      memberCount: increment(1),
+    })
+
+    // 사용자의 groupIds에 추가 (arrayUnion으로 원자적 업데이트)
+    await updateDoc(doc(db, 'users', userId), {
+      groupIds: arrayUnion(groupId),
+    })
+  }
+
   // 그룹 탈퇴
   async function leaveGroup(groupId: string) {
     if (!db || !user.value) throw new Error('Not authenticated')
@@ -398,6 +434,7 @@ export const useGroupStore = defineStore('group', () => {
     fetchGroupMembers,
     createGroup,
     joinGroup,
+    addMemberToGroup,
     leaveGroup,
     deleteGroup,
     updateGroup,

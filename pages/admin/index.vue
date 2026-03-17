@@ -37,15 +37,25 @@
     <!-- 사용자 목록 -->
     <UCard class="mb-8">
       <template #header>
-        <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
           <h2 class="text-lg font-semibold shrink-0">사용자 목록 ({{ filteredUsers.length }}명)</h2>
-          <UInput
-            v-model="userSearch"
-            placeholder="이름 또는 이메일 검색"
-            icon="i-lucide-search"
-            size="sm"
-            class="max-w-xs"
-          />
+          <div class="flex items-center gap-2">
+            <USelect
+              v-model="userGroupFilter"
+              :items="groupFilterOptions"
+              value-key="value"
+              label-key="label"
+              size="sm"
+              class="w-40"
+            />
+            <UInput
+              v-model="userSearch"
+              placeholder="이름 또는 이메일 검색"
+              icon="i-lucide-search"
+              size="sm"
+              class="max-w-xs"
+            />
+          </div>
         </div>
       </template>
 
@@ -94,6 +104,13 @@
             >
               {{ u.role === 'admin' ? '관리자' : '멤버' }}
             </UBadge>
+            <UButton
+              label="그룹 배정"
+              size="xs"
+              variant="outline"
+              icon="i-lucide-users"
+              @click="openGroupAssign(u)"
+            />
             <UButton
               :label="u.role === 'admin' ? '멤버로' : '관리자로'"
               size="xs"
@@ -219,6 +236,43 @@
         </div>
       </template>
     </UModal>
+
+    <!-- 그룹 배정 모달 -->
+    <UModal v-model:open="showGroupAssign">
+      <template #content>
+        <div class="p-6 space-y-4">
+          <h3 class="text-lg font-semibold">그룹 배정</h3>
+          <p class="text-sm text-muted">
+            <strong>{{ assignTarget?.displayName }}</strong>님을 그룹에 배정합니다.
+          </p>
+
+          <div v-if="availableGroupsForAssign.length === 0" class="text-sm text-muted py-4 text-center">
+            배정할 수 있는 그룹이 없습니다. (이미 모든 그룹에 가입됨)
+          </div>
+
+          <template v-else>
+            <USelect
+              v-model="selectedGroupId"
+              :items="availableGroupsForAssign"
+              placeholder="그룹을 선택하세요"
+              value-key="id"
+              label-key="name"
+            />
+          </template>
+
+          <div class="flex justify-end gap-2">
+            <UButton label="취소" variant="outline" @click="showGroupAssign = false" />
+            <UButton
+              label="추가"
+              color="primary"
+              :loading="assigning"
+              :disabled="!selectedGroupId || availableGroupsForAssign.length === 0"
+              @click="handleGroupAssign"
+            />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </UContainer>
 </template>
 
@@ -231,6 +285,7 @@ definePageMeta({ middleware: ['auth', 'admin'] })
 
 const db = useFirestore()
 const toast = useToast()
+const groupStore = useGroupStore()
 
 interface AdminUser extends UserProfile {
   id: string
@@ -245,10 +300,15 @@ const togglingUserId = ref<string | null>(null)
 const showDeleteConfirm = ref(false)
 const groupToDelete = ref<Group | null>(null)
 const deleting = ref(false)
+const showGroupAssign = ref(false)
+const assignTarget = ref<AdminUser | null>(null)
+const selectedGroupId = ref<string>()
+const assigning = ref(false)
 
 // 검색
 const userSearch = ref('')
 const groupSearch = ref('')
+const userGroupFilter = ref('all')
 
 // 페이지네이션
 const userPage = ref(1)
@@ -257,13 +317,35 @@ const groupPage = ref(1)
 // 검색 시 페이지 초기화
 watch(userSearch, () => { userPage.value = 1 })
 watch(groupSearch, () => { groupPage.value = 1 })
+watch(userGroupFilter, () => { userPage.value = 1 })
+
+// 그룹 필터 옵션
+const groupFilterOptions = computed(() => [
+  { value: 'all', label: '전체 그룹' },
+  { value: 'none', label: '그룹 없음' },
+  ...groups.value.map(g => ({ value: g.id, label: g.name })),
+])
 
 const filteredUsers = computed(() => {
+  let result = users.value
+
+  // 그룹 필터
+  const gf = userGroupFilter.value
+  if (gf === 'none') {
+    result = result.filter(u => !u.groupIds?.length)
+  } else if (gf && gf !== 'all') {
+    result = result.filter(u => u.groupIds?.includes(gf))
+  }
+
+  // 텍스트 검색
   const q = userSearch.value.trim().toLowerCase()
-  if (!q) return users.value
-  return users.value.filter(u =>
-    u.displayName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
-  )
+  if (q) {
+    result = result.filter(u =>
+      u.displayName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
+    )
+  }
+
+  return result
 })
 
 const userTotalPages = computed(() => Math.max(1, Math.ceil(filteredUsers.value.length / PAGE_SIZE)))
@@ -385,6 +467,55 @@ async function handleDeleteGroup() {
     deleting.value = false
     showDeleteConfirm.value = false
     groupToDelete.value = null
+  }
+}
+
+// 그룹 배정 관련
+const availableGroupsForAssign = computed(() => {
+  if (!assignTarget.value) return []
+  const userGroupIds = assignTarget.value.groupIds ?? []
+  return groups.value.filter(g => !userGroupIds.includes(g.id))
+})
+
+function openGroupAssign(u: AdminUser) {
+  assignTarget.value = u
+  selectedGroupId.value = undefined
+  showGroupAssign.value = true
+}
+
+async function handleGroupAssign() {
+  if (!assignTarget.value || !selectedGroupId.value) return
+
+  assigning.value = true
+  try {
+    await groupStore.addMemberToGroup(
+      selectedGroupId.value,
+      assignTarget.value.id,
+      assignTarget.value.displayName,
+      assignTarget.value.photoURL || '',
+    )
+
+    // 로컬 사용자 데이터 업데이트
+    const userGroupIds = assignTarget.value.groupIds ?? []
+    assignTarget.value.groupIds = [...userGroupIds, selectedGroupId.value]
+
+    // 로컬 그룹 memberCount 업데이트
+    const assignedGroup = groups.value.find(g => g.id === selectedGroupId.value)
+    if (assignedGroup) assignedGroup.memberCount++
+    toast.add({
+      title: `${assignTarget.value.displayName}님이 ${assignedGroup?.name ?? '그룹'}에 배정되었습니다`,
+      color: 'success',
+    })
+
+    showGroupAssign.value = false
+  } catch (err) {
+    toast.add({
+      title: '그룹 배정 실패',
+      description: err instanceof Error ? err.message : '알 수 없는 오류',
+      color: 'error',
+    })
+  } finally {
+    assigning.value = false
   }
 }
 

@@ -107,6 +107,13 @@ const mobileUserMenuItems = computed(() => {
   return items
 })
 
+// 로그인된 사용자의 프로필을 자동 로드 (관리자 메뉴 표시 등에 필요)
+watch(user, async (u) => {
+  if (u && !userStore.userProfile) {
+    await userStore.loadUserProfile(u.uid)
+  }
+}, { immediate: true })
+
 const handleSignOut = async () => {
   if (auth) {
     await signOut(auth)
