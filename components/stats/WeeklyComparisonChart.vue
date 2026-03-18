@@ -51,23 +51,30 @@ const chartData = ref({
   ],
 })
 
-const chartOptions = {
+const { tickColor, gridColor, legendColor } = useChartTheme()
+
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: {
       display: true,
       position: 'top' as const,
-      labels: { boxWidth: 12, padding: 8, font: { size: 11 } },
+      labels: { boxWidth: 12, padding: 8, font: { size: 11 }, color: legendColor.value },
     },
   },
   scales: {
+    x: {
+      ticks: { color: tickColor.value },
+      grid: { color: gridColor.value },
+    },
     y: {
       beginAtZero: true,
-      ticks: { stepSize: 1 },
+      ticks: { stepSize: 1, color: tickColor.value },
+      grid: { color: gridColor.value },
     },
   },
-}
+}))
 
 onMounted(async () => {
   const comparison = await workoutStore.fetchWeeklyComparison()

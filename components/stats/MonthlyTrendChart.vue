@@ -52,19 +52,26 @@ const chartData = ref({
   ],
 })
 
-const chartOptions = {
+const { tickColor, gridColor } = useChartTheme()
+
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
   },
   scales: {
+    x: {
+      ticks: { color: tickColor.value },
+      grid: { color: gridColor.value },
+    },
     y: {
       beginAtZero: true,
-      ticks: { stepSize: 1 },
+      ticks: { stepSize: 1, color: tickColor.value },
+      grid: { color: gridColor.value },
     },
   },
-}
+}))
 
 onMounted(async () => {
   const trend = await workoutStore.fetchMonthlyTrend(6)

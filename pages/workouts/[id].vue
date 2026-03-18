@@ -95,6 +95,20 @@
       title="운동 기록을 찾을 수 없습니다"
       description="존재하지 않거나 삭제된 기록입니다."
     />
+
+    <!-- 삭제 확인 모달 -->
+    <UModal v-model:open="showDeleteConfirm">
+      <template #content>
+        <div class="p-6">
+          <h3 class="text-lg font-semibold mb-2">운동 기록 삭제</h3>
+          <p class="text-sm text-muted mb-6">정말로 이 운동 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+          <div class="flex justify-end gap-2">
+            <UButton variant="ghost" label="취소" @click="showDeleteConfirm = false" />
+            <UButton color="error" label="삭제" :loading="deleting" @click="executeDelete" />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </UContainer>
 </template>
 
@@ -116,6 +130,7 @@ const workout = ref<Workout | null>(null)
 const loading = ref(true)
 const showZoom = ref(false)
 const deleting = ref(false)
+const showDeleteConfirm = ref(false)
 
 const isOwner = computed(() => {
   return workout.value && user.value && workout.value.userId === user.value.uid
@@ -141,15 +156,17 @@ const formattedDate = computed(() => {
   })
 })
 
-async function confirmDelete() {
-  if (!workout.value) return
+function confirmDelete() {
+  showDeleteConfirm.value = true
+}
 
-  const confirmed = window.confirm('정말로 이 운동 기록을 삭제하시겠습니까?')
-  if (!confirmed) return
+async function executeDelete() {
+  if (!workout.value) return
 
   deleting.value = true
   try {
     await workoutStore.deleteWorkout(workout.value.id)
+    showDeleteConfirm.value = false
     toast.add({
       title: '운동 기록이 삭제되었습니다',
       color: 'success',

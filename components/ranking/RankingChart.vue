@@ -66,7 +66,9 @@ const chartData = computed(() => ({
   ],
 }))
 
-const chartOptions = {
+const { tickColor, gridColor } = useChartTheme()
+
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -74,12 +76,14 @@ const chartOptions = {
   },
   scales: {
     x: {
-      ticks: { font: { size: 11 }, maxRotation: 45, minRotation: 0 },
+      ticks: { font: { size: 11 }, maxRotation: 45, minRotation: 0, color: tickColor.value },
+      grid: { color: gridColor.value },
     },
     y: {
       beginAtZero: true,
-      ticks: { stepSize: 1 },
+      ticks: { stepSize: 1, color: tickColor.value },
+      grid: { color: gridColor.value },
     },
   },
-}
+}))
 </script>

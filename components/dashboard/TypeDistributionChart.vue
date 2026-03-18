@@ -40,16 +40,18 @@ const chartData = ref({
   ],
 })
 
-const chartOptions = {
+const { legendColor } = useChartTheme()
+
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'right' as const,
-      labels: { boxWidth: 12, padding: 12 },
+      labels: { boxWidth: 12, padding: 12, color: legendColor.value },
     },
   },
-}
+}))
 
 onMounted(async () => {
   const dist = await workoutStore.fetchTypeDistribution()

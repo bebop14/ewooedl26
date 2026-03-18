@@ -1,6 +1,6 @@
 <template>
   <UButton
-    :icon="isLiked ? 'i-lucide-heart' : 'i-lucide-heart'"
+    :icon="isLiked ? 'i-mdi-heart' : 'i-lucide-heart'"
     :variant="isLiked ? 'soft' : 'ghost'"
     :color="isLiked ? 'error' : 'neutral'"
     :label="String(localCount)"

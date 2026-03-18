@@ -39,21 +39,23 @@ const chartData = ref({
   datasets: [] as { label: string; data: number[]; backgroundColor: string }[],
 })
 
-const chartOptions = {
+const { tickColor, gridColor, legendColor } = useChartTheme()
+
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: {
       display: true,
       position: 'top' as const,
-      labels: { boxWidth: 12, padding: 8, font: { size: 11 } },
+      labels: { boxWidth: 12, padding: 8, font: { size: 11 }, color: legendColor.value },
     },
   },
   scales: {
-    x: { stacked: true },
-    y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } },
+    x: { stacked: true, ticks: { color: tickColor.value }, grid: { color: gridColor.value } },
+    y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1, color: tickColor.value }, grid: { color: gridColor.value } },
   },
-}
+}))
 
 onMounted(async () => {
   const stats = await workoutStore.fetchWeeklyTypeStats()
