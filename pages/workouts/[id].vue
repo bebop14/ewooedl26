@@ -20,43 +20,31 @@
     </div>
 
     <template v-else-if="workout">
+      <!-- 작성자 헤더 -->
+      <div class="flex items-center gap-3 mb-4">
+        <NuxtLink :to="`/profile/${workout.userId}`">
+          <UAvatar :src="workout.userPhoto || undefined" :alt="workout.userName" size="md" />
+        </NuxtLink>
+        <div class="flex-1 min-w-0">
+          <NuxtLink :to="`/profile/${workout.userId}`" class="font-medium hover:underline">
+            {{ workout.userName }}
+          </NuxtLink>
+          <p class="text-sm text-muted">{{ formattedDate }}</p>
+        </div>
+        <div class="flex items-center gap-1">
+          <UIcon :name="typeIcon" class="text-lg text-primary" />
+          <span class="text-sm text-muted">{{ typeLabel }}</span>
+        </div>
+      </div>
+
       <!-- 인증샷 -->
       <img
         :src="workout.imageUrl"
         :alt="typeLabel"
-        class="w-full rounded-lg mb-6 cursor-zoom-in"
+        class="w-full rounded-lg mb-4 cursor-zoom-in"
         @click="showZoom = true"
       />
       <GalleryImageZoomModal v-model:open="showZoom" :image-url="workout.imageUrl" />
-
-      <!-- 운동 정보 -->
-      <UCard class="mb-4">
-        <div class="flex items-center gap-3 mb-4">
-          <UIcon :name="typeIcon" class="text-2xl text-primary" />
-          <div>
-            <h2 class="text-xl font-semibold">{{ typeLabel }}</h2>
-            <p class="text-sm text-gray-500">{{ formattedDate }}</p>
-          </div>
-        </div>
-
-        <!-- 메모 -->
-        <div v-if="workout.memo">
-          <USeparator class="my-4" />
-          <p class="text-gray-700 dark:text-gray-300">{{ workout.memo }}</p>
-        </div>
-
-        <!-- 해시태그 -->
-        <div v-if="workout.hashtags.length" class="flex flex-wrap gap-2 mt-4">
-          <UBadge
-            v-for="tag in workout.hashtags"
-            :key="tag"
-            variant="subtle"
-            color="info"
-          >
-            #{{ tag }}
-          </UBadge>
-        </div>
-      </UCard>
 
       <!-- 좋아요 / 댓글 수 -->
       <div class="flex items-center gap-4 mb-4">
@@ -65,19 +53,27 @@
           :like-count="workout.likes"
           @toggled="(d: number) => { if (workout) workout.likes += d }"
         />
-        <div class="flex items-center gap-1 text-gray-500">
+        <div class="flex items-center gap-1 text-muted">
           <UIcon name="i-lucide-message-circle" />
           <span>{{ workout.comments }}</span>
         </div>
       </div>
 
-      <!-- 작성자 -->
-      <UCard class="mb-4">
-        <div class="flex items-center gap-3">
-          <UAvatar :src="workout.userPhoto || undefined" :alt="workout.userName" size="md" />
-          <div>
-            <p class="font-medium">{{ workout.userName }}</p>
-          </div>
+      <!-- 운동 정보 (메모/해시태그가 있을 때만 카드 표시) -->
+      <UCard v-if="workout.memo || workout.hashtags.length" class="mb-4">
+        <!-- 메모 -->
+        <p v-if="workout.memo" class="text-gray-700 dark:text-gray-300">{{ workout.memo }}</p>
+
+        <!-- 해시태그 -->
+        <div v-if="workout.hashtags.length" class="flex flex-wrap gap-2" :class="workout.memo ? 'mt-3' : ''">
+          <UBadge
+            v-for="tag in workout.hashtags"
+            :key="tag"
+            variant="subtle"
+            color="info"
+          >
+            #{{ tag }}
+          </UBadge>
         </div>
       </UCard>
 

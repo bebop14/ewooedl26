@@ -47,9 +47,15 @@ watch(selectedType, reloadGallery)
 // 그룹 변경 시 데이터 리로드
 watch(() => groupStore.currentGroupId, reloadGallery)
 
-function loadMore() {
+async function loadMore() {
   if (socialStore.galleryHasMore && !socialStore.galleryLoading) {
-    socialStore.fetchGalleryPage(12, getFilters())
+    const prevCount = socialStore.galleryWorkouts.length
+    await socialStore.fetchGalleryPage(12, getFilters())
+    // 새로 로드된 워크아웃의 좋아요 데이터 로드
+    const newWorkouts = socialStore.galleryWorkouts.slice(prevCount)
+    if (newWorkouts.length > 0) {
+      await socialStore.loadUserLikesForWorkouts(newWorkouts.map(w => w.id))
+    }
   }
 }
 
@@ -64,6 +70,10 @@ onMounted(async () => {
   }
   socialStore.resetGallery()
   await socialStore.fetchGalleryPage(12, getFilters())
+  // 갤러리 카드 인라인 좋아요를 위해 사용자 좋아요 데이터 로드
+  if (socialStore.galleryWorkouts.length > 0) {
+    await socialStore.loadUserLikesForWorkouts(socialStore.galleryWorkouts.map(w => w.id))
+  }
   initialized.value = true
 })
 </script>

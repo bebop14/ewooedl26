@@ -3,13 +3,13 @@
     <template #header>
       <h3 class="text-lg font-semibold">이번 주 vs 지난 주</h3>
     </template>
-    <div class="h-64">
+    <div class="h-64" role="img" aria-label="이번 주 vs 지난 주 운동 비교 차트">
       <Bar v-if="loaded && hasData" :data="chartData" :options="chartOptions" />
       <div v-else-if="!loaded" class="h-full flex items-center justify-center">
-        <UIcon name="i-lucide-loader-circle" class="text-2xl animate-spin text-gray-400" />
+        <UIcon name="i-lucide-loader-circle" class="text-2xl animate-spin text-muted" />
       </div>
       <div v-else class="h-full flex items-center justify-center">
-        <p class="text-sm text-gray-400">운동 기록이 없습니다</p>
+        <p class="text-sm text-muted">운동 기록이 없습니다</p>
       </div>
     </div>
   </UCard>

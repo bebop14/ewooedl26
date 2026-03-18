@@ -3,12 +3,22 @@
     <template #header>
       <h3 class="text-lg font-semibold">순위 차트</h3>
     </template>
-    <div class="h-64">
+    <div class="h-64" role="img" :aria-label="`순위 차트: ${metricLabel[sortBy]}`">
       <Bar v-if="hasData" :data="chartData" :options="chartOptions" />
       <div v-else class="h-full flex items-center justify-center">
-        <p class="text-sm text-gray-400">순위 데이터가 없습니다</p>
+        <p class="text-sm text-muted">순위 데이터가 없습니다</p>
       </div>
     </div>
+    <table v-if="hasData" class="sr-only">
+      <caption>{{ metricLabel[sortBy] }} 순위</caption>
+      <thead><tr><th>이름</th><th>{{ metricLabel[sortBy] }}</th></tr></thead>
+      <tbody>
+        <tr v-for="u in top10" :key="u.userId">
+          <td>{{ u.displayName }}</td>
+          <td>{{ u[sortBy] ?? 0 }}</td>
+        </tr>
+      </tbody>
+    </table>
   </UCard>
 </template>
 
