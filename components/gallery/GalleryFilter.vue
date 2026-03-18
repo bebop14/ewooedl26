@@ -1,9 +1,10 @@
 <template>
-  <div class="flex flex-wrap gap-2">
+  <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
     <UButton
       label="전체"
       :variant="modelValue === null ? 'solid' : 'outline'"
       size="sm"
+      class="flex-none"
       @click="$emit('update:modelValue', null)"
     />
     <UButton
@@ -13,6 +14,7 @@
       :label="type.label"
       :variant="modelValue === type.value ? 'solid' : 'outline'"
       size="sm"
+      class="flex-none"
       @click="$emit('update:modelValue', type.value)"
     />
   </div>

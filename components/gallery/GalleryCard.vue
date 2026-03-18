@@ -11,15 +11,15 @@
     <div class="mt-2 flex items-center gap-2">
       <UAvatar :src="workout.userPhoto || undefined" :alt="workout.userName" size="xs" />
       <span class="text-sm truncate">{{ workout.userName }}</span>
-      <span class="text-xs text-gray-400 ml-auto flex items-center gap-1">
+      <span class="text-xs text-muted ml-auto flex items-center gap-1">
         <UIcon :name="typeIcon" class="text-sm" />
         {{ typeLabel }}
       </span>
-      <span class="text-xs text-gray-400 flex items-center gap-0.5">
+      <span class="text-xs text-muted flex items-center gap-0.5">
         <UIcon name="i-lucide-heart" class="text-sm" />
         {{ workout.likes }}
       </span>
-      <span class="text-xs text-gray-400 flex items-center gap-0.5">
+      <span class="text-xs text-muted flex items-center gap-0.5">
         <UIcon name="i-lucide-message-circle" class="text-sm" />
         {{ workout.comments }}
       </span>

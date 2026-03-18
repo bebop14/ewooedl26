@@ -32,7 +32,7 @@
       <!-- 운동 정보 -->
       <UCard class="mb-4">
         <div class="flex items-center gap-3 mb-4">
-          <UIcon :name="typeIcon" class="text-2xl text-blue-500" />
+          <UIcon :name="typeIcon" class="text-2xl text-primary" />
           <div>
             <h2 class="text-xl font-semibold">{{ typeLabel }}</h2>
             <p class="text-sm text-gray-500">{{ formattedDate }}</p>

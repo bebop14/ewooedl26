@@ -6,16 +6,16 @@
     <div class="grid grid-cols-2 gap-4 mb-6">
       <UCard>
         <div class="text-center">
-          <UIcon name="i-lucide-users" class="text-2xl text-blue-500 mb-1" />
+          <UIcon name="i-lucide-users" class="text-2xl text-primary mb-1" />
           <p class="text-2xl font-bold">{{ totalMembers }}</p>
-          <p class="text-sm text-gray-500">총 회원수</p>
+          <p class="text-sm text-muted">총 회원수</p>
         </div>
       </UCard>
       <UCard>
         <div class="text-center">
-          <UIcon name="i-lucide-dumbbell" class="text-2xl text-green-500 mb-1" />
+          <UIcon name="i-lucide-dumbbell" class="text-2xl text-primary mb-1" />
           <p class="text-2xl font-bold">{{ totalAllWorkouts }}</p>
-          <p class="text-sm text-gray-500">총 운동 횟수</p>
+          <p class="text-sm text-muted">총 운동 횟수</p>
         </div>
       </UCard>
     </div>

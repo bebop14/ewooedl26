@@ -17,14 +17,14 @@
         />
         <div class="bg-gray-50 dark:bg-gray-800 px-1.5 py-1 space-y-0.5">
           <p class="text-xs font-medium truncate">{{ getTypeLabel(w.workoutType) }}</p>
-          <p class="text-[0.6rem] text-gray-400">{{ formatDate(w.date) }}</p>
-          <div class="flex items-center gap-2 text-[0.6rem] text-gray-400">
+          <p class="text-xs text-muted">{{ formatDate(w.date) }}</p>
+          <div class="flex items-center gap-2 text-xs text-muted">
             <span class="flex items-center gap-0.5">
-              <UIcon name="i-lucide-heart" class="text-[0.55rem]" />
+              <UIcon name="i-lucide-heart" class="text-xs" />
               {{ w.likes }}
             </span>
             <span class="flex items-center gap-0.5">
-              <UIcon name="i-lucide-message-circle" class="text-[0.55rem]" />
+              <UIcon name="i-lucide-message-circle" class="text-xs" />
               {{ w.comments }}
             </span>
           </div>
@@ -35,8 +35,12 @@
       v-else
       icon="i-lucide-dumbbell"
       title="아직 운동 기록이 없습니다"
-      description="첫 번째 운동을 기록해보세요!"
-    />
+      description="첫 번째 운동을 기록하고 동료들과 함께 달려보세요!"
+    >
+      <template #actions>
+        <UButton to="/workouts/new" label="운동 기록하기" icon="i-lucide-plus" />
+      </template>
+    </UEmpty>
   </UCard>
 </template>
 

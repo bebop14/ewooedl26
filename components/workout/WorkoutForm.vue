@@ -3,14 +3,14 @@
     <!-- 운동 종류 선택 -->
     <div>
       <label class="block text-sm font-medium mb-3">운동 종류 *</label>
-      <div class="grid grid-cols-4 gap-2">
+      <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
         <button
           v-for="type in WORKOUT_TYPES"
           :key="type.value"
           type="button"
           class="flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-colors"
           :class="form.workoutType === type.value
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-950 text-blue-600'
+            ? 'border-primary bg-primary/10 text-primary'
             : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'"
           @click="form.workoutType = type.value"
         >

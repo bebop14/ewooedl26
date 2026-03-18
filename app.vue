@@ -9,8 +9,14 @@
       <UNavigationMenu :items="navItems" />
 
       <template #right>
-        <!-- 데스크톱: 그룹 선택 + 사용자 메뉴 -->
+        <!-- 데스크톱: 운동 기록 + 그룹 선택 + 사용자 메뉴 -->
         <div class="hidden sm:flex items-center gap-2">
+          <UButton
+            to="/workouts/new"
+            icon="i-lucide-plus"
+            label="기록하기"
+            size="sm"
+          />
           <GroupSelector />
           <UDropdownMenu :items="userMenuItems">
             <UButton variant="ghost" class="gap-2">
@@ -36,7 +42,7 @@
       <template #body>
         <!-- 모바일 메뉴: 그룹 선택 -->
         <div class="px-2 py-3">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">그룹 선택</p>
+          <p class="text-sm text-muted mb-2">그룹 선택</p>
           <GroupSelector />
         </div>
         <USeparator class="my-2" />
@@ -47,6 +53,19 @@
     </UHeader>
 
     <NuxtPage />
+
+    <!-- 모바일 FAB: 운동 기록하기 -->
+    <NuxtLink
+      v-if="user"
+      to="/workouts/new"
+      class="fixed bottom-6 right-6 z-50 sm:hidden"
+    >
+      <UButton
+        icon="i-lucide-plus"
+        size="xl"
+        class="rounded-full shadow-lg"
+      />
+    </NuxtLink>
   </UApp>
 </template>
 

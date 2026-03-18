@@ -2,7 +2,7 @@
   <NuxtLink
     :to="`/profile/${user.userId}`"
     class="flex items-center gap-2 py-2 px-3"
-    :class="isMe ? 'bg-blue-500/10 rounded-lg' : ''"
+    :class="isMe ? 'bg-primary/10 border-l-2 border-primary rounded-lg' : ''"
   >
     <div class="w-8 text-center font-bold flex-shrink-0">
       <span v-if="rank === 1" class="text-lg">🥇</span>
@@ -15,7 +15,7 @@
 
     <div class="flex-1 min-w-0">
       <p class="font-medium truncate">{{ user.displayName }}</p>
-      <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+      <div class="flex items-center gap-2 text-xs text-muted mt-0.5">
         <span v-if="user.mainWorkoutType" class="flex items-center gap-1">
           <UIcon :name="user.mainWorkoutType.icon" class="text-sm" />
           {{ user.mainWorkoutType.label }}
@@ -28,7 +28,7 @@
 
     <div class="text-right flex-shrink-0">
       <p class="font-bold text-lg">{{ user[sortBy] ?? 0 }}</p>
-      <p class="text-xs text-gray-400">{{ sortBy === 'totalWorkouts' ? '회' : '일' }}</p>
+      <p class="text-xs text-muted">{{ sortBy === 'totalWorkouts' ? '회' : '일' }}</p>
     </div>
   </NuxtLink>
 </template>
