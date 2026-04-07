@@ -23,7 +23,7 @@
         @toggled="(d: number) => localLikes += d"
       />
       <span class="text-xs text-muted flex items-center gap-0.5">
-        <UIcon name="i-lucide-message-circle" class="text-sm" />
+        <UIcon name="i-lucide-message-circle" class="text-sm" aria-hidden="true" />
         {{ workout.comments }}
       </span>
     </div>

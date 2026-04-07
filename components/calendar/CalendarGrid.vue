@@ -1,16 +1,16 @@
 <template>
   <div>
     <!-- 요일 헤더 -->
-    <div class="grid grid-cols-7 text-center text-xs font-medium text-gray-500 mb-1">
+    <div class="grid grid-cols-7 text-center text-xs font-medium text-muted mb-1">
       <div v-for="day in weekDays" :key="day">{{ day }}</div>
     </div>
 
     <!-- 캘린더 그리드 -->
-    <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+    <div class="grid grid-cols-7 gap-px bg-accented rounded-lg overflow-hidden">
       <button
         v-for="(cell, idx) in calendarCells"
         :key="idx"
-        class="bg-white dark:bg-gray-900 p-1 min-h-20 md:min-h-24 flex flex-col items-stretch gap-0.5 transition-colors text-sm"
+        class="bg-default p-1 min-h-20 md:min-h-24 flex flex-col items-stretch gap-0.5 transition-colors text-sm"
         :class="cellClasses(cell)"
         :disabled="!cell.isCurrentMonth"
         @click="cell.isCurrentMonth && $emit('selectDate', cell.dateStr)"
@@ -18,8 +18,8 @@
         <span
           class="leading-none text-center mb-0.5"
           :class="{
-            'font-bold text-blue-600 dark:text-blue-400': cell.isToday,
-            'text-gray-300 dark:text-gray-600': !cell.isCurrentMonth,
+            'font-bold text-primary': cell.isToday,
+            'text-dimmed': !cell.isCurrentMonth,
           }"
         >
           {{ cell.day }}
@@ -31,14 +31,14 @@
             :key="i"
             class="text-[0.6rem] md:text-xs leading-tight px-1 py-px rounded truncate text-left"
             :class="ev.type === 'event'
-              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-              : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'"
+              ? 'bg-info/15 text-info'
+              : 'bg-success/15 text-success'"
           >
             {{ ev.title }}
           </div>
           <span
             v-if="cell.events.length > 2"
-            class="text-[0.55rem] text-gray-400 text-center leading-none"
+            class="text-[0.55rem] text-muted text-center leading-none"
           >
             +{{ cell.events.length - 2 }}건
           </span>
@@ -141,10 +141,10 @@ const calendarCells = computed((): CalendarCell[] => {
 function cellClasses(cell: CalendarCell) {
   const classes: string[] = []
   if (cell.isCurrentMonth) {
-    classes.push('hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer')
+    classes.push('hover:bg-elevated cursor-pointer')
   }
   if (cell.dateStr === props.selectedDate) {
-    classes.push('ring-2 ring-inset ring-blue-500')
+    classes.push('ring-2 ring-inset ring-primary')
   }
   return classes
 }

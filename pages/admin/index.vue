@@ -59,8 +59,8 @@
         </div>
       </template>
 
-      <div v-if="loading" class="text-center py-8">
-        <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
+      <div v-if="loading" class="text-center py-8" role="status" aria-label="로딩 중">
+        <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" aria-hidden="true" />
       </div>
 
       <template v-else>
@@ -68,7 +68,7 @@
           검색 결과가 없습니다.
         </div>
 
-        <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
+        <div v-else class="divide-y divide-default">
           <div
             v-for="u in paginatedUsers"
             :key="u.id"
@@ -157,8 +157,8 @@
         </div>
       </template>
 
-      <div v-if="loading" class="text-center py-8">
-        <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
+      <div v-if="loading" class="text-center py-8" role="status" aria-label="로딩 중">
+        <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" aria-hidden="true" />
       </div>
 
       <template v-else>
@@ -166,7 +166,7 @@
           검색 결과가 없습니다.
         </div>
 
-        <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
+        <div v-else class="divide-y divide-default">
           <div
             v-for="g in paginatedGroups"
             :key="g.id"
@@ -182,7 +182,7 @@
               </template>
             </UAvatar>
             <div class="flex-1 min-w-0">
-              <NuxtLink :to="`/groups/${g.id}`" class="font-medium hover:text-primary-500 truncate block">
+              <NuxtLink :to="`/groups/${g.id}`" class="font-medium hover:text-primary truncate block">
                 {{ g.name }}
               </NuxtLink>
               <p class="text-xs text-muted">

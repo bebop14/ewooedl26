@@ -14,8 +14,8 @@
     />
 
     <!-- 로딩 -->
-    <div v-if="eventStore.loading" class="text-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
+    <div v-if="eventStore.loading" class="text-center py-12" role="status" aria-label="로딩 중">
+      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" aria-hidden="true" />
     </div>
 
     <template v-else>

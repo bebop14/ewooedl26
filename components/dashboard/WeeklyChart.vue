@@ -3,13 +3,14 @@
     <template #header>
       <h3 class="text-lg font-semibold">이번 주 운동</h3>
     </template>
-    <div class="h-48" role="img" aria-label="이번 주 운동 차트">
+    <div class="h-44 md:h-56" role="img" aria-label="이번 주 운동 차트">
       <Bar v-if="loaded && hasData" :data="chartData" :options="chartOptions" />
       <div v-else-if="!loaded" class="h-full flex items-center justify-center">
         <UIcon name="i-lucide-loader-circle" class="text-2xl animate-spin text-muted" />
       </div>
-      <div v-else class="h-full flex items-center justify-center">
-        <p class="text-sm text-muted">이번 주 운동 기록이 없습니다</p>
+      <div v-else class="h-full flex flex-col items-center justify-center gap-2">
+        <p class="text-sm text-muted">이번 주 아직 기록이 없어요</p>
+        <UButton label="오늘 운동 기록하기" to="/workouts/new" size="xs" variant="soft" icon="i-lucide-plus" />
       </div>
     </div>
   </UCard>
@@ -17,18 +18,7 @@
 
 <script setup lang="ts">
 import { Bar } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js'
 import type { WeeklyTypeDataset } from '~/types/workout'
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const workoutStore = useWorkoutStore()
 const loaded = ref(false)

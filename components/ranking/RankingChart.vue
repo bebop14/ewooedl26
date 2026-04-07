@@ -3,7 +3,7 @@
     <template #header>
       <h3 class="text-lg font-semibold">순위 차트</h3>
     </template>
-    <div class="h-64" role="img" :aria-label="`순위 차트: ${metricLabel[sortBy]}`">
+    <div class="h-52 md:h-72" role="img" :aria-label="`순위 차트: ${metricLabel[sortBy]}`">
       <Bar v-if="hasData" :data="chartData" :options="chartOptions" />
       <div v-else class="h-full flex items-center justify-center">
         <p class="text-sm text-muted">순위 데이터가 없습니다</p>
@@ -24,18 +24,7 @@
 
 <script setup lang="ts">
 import { Bar } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js'
 import type { RankedUser } from '~/types/social'
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const props = defineProps<{
   users: RankedUser[]
@@ -49,10 +38,7 @@ const metricLabel: Record<string, string> = {
 }
 
 function getBarColor(index: number): string {
-  if (index === 0) return '#F59E0B' // gold
-  if (index === 1) return '#9CA3AF' // silver
-  if (index === 2) return '#CD7F32' // bronze
-  return '#3B82F6' // blue default
+  return rankBarColor(index)
 }
 
 const top10 = computed(() => {
@@ -76,7 +62,7 @@ const chartData = computed(() => ({
   ],
 }))
 
-const { tickColor, gridColor } = useChartTheme()
+const { tickColor, gridColor, rankBarColor } = useChartTheme()
 
 const chartOptions = computed(() => ({
   responsive: true,

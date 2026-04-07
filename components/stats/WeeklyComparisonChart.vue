@@ -3,7 +3,7 @@
     <template #header>
       <h3 class="text-lg font-semibold">이번 주 vs 지난 주</h3>
     </template>
-    <div class="h-64" role="img" aria-label="이번 주 vs 지난 주 운동 비교 차트">
+    <div class="h-52 md:h-64" role="img" aria-label="이번 주 vs 지난 주 운동 비교 차트">
       <Bar v-if="loaded && hasData" :data="chartData" :options="chartOptions" />
       <div v-else-if="!loaded" class="h-full flex items-center justify-center">
         <UIcon name="i-lucide-loader-circle" class="text-2xl animate-spin text-muted" />
@@ -17,17 +17,6 @@
 
 <script setup lang="ts">
 import { Bar } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js'
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const workoutStore = useWorkoutStore()
 const loaded = ref(false)
@@ -39,19 +28,19 @@ const chartData = ref({
     {
       label: '이번 주',
       data: [] as number[],
-      backgroundColor: '#10B981',
+      backgroundColor: '',
       borderRadius: 4,
     },
     {
       label: '지난 주',
       data: [] as number[],
-      backgroundColor: '#D1D5DB',
+      backgroundColor: '',
       borderRadius: 4,
     },
   ],
 })
 
-const { tickColor, gridColor, legendColor } = useChartTheme()
+const { tickColor, gridColor, legendColor, primaryColor, mutedBarColor } = useChartTheme()
 
 const chartOptions = computed(() => ({
   responsive: true,
@@ -85,17 +74,23 @@ onMounted(async () => {
       {
         label: '이번 주',
         data: comparison.thisWeek,
-        backgroundColor: '#10B981',
+        backgroundColor: primaryColor.value,
         borderRadius: 4,
       },
       {
         label: '지난 주',
         data: comparison.lastWeek,
-        backgroundColor: '#D1D5DB',
+        backgroundColor: mutedBarColor.value,
         borderRadius: 4,
       },
     ],
   }
   loaded.value = true
+})
+
+watch([primaryColor, mutedBarColor], ([primary, muted]) => {
+  if (!chartData.value.datasets[0] || !chartData.value.datasets[1]) return
+  chartData.value.datasets[0].backgroundColor = primary
+  chartData.value.datasets[1].backgroundColor = muted
 })
 </script>

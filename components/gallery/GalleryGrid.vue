@@ -5,8 +5,8 @@
     </div>
 
     <div ref="sentinel" class="h-10 flex items-center justify-center mt-6">
-      <UIcon v-if="loading" name="i-lucide-loader-circle" class="text-xl animate-spin" />
-      <p v-else-if="!hasMore && workouts.length > 0" class="text-sm text-gray-400">
+      <UIcon v-if="loading" name="i-lucide-loader-circle" class="text-xl animate-spin" role="status" aria-label="로딩 중" />
+      <p v-else-if="!hasMore && workouts.length > 0" class="text-sm text-muted">
         모든 게시물을 불러왔습니다
       </p>
     </div>

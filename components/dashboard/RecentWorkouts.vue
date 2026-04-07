@@ -14,17 +14,18 @@
           :src="w.thumbnailUrl"
           :alt="getTypeLabel(w.workoutType)"
           class="w-full h-24 object-cover group-hover:scale-105 transition-transform"
+          loading="lazy"
         />
-        <div class="bg-gray-50 dark:bg-gray-800 px-1.5 py-1 space-y-0.5">
+        <div class="bg-elevated px-1.5 py-1 space-y-0.5">
           <p class="text-xs font-medium truncate">{{ getTypeLabel(w.workoutType) }}</p>
           <p class="text-xs text-muted">{{ formatDate(w.date) }}</p>
           <div class="flex items-center gap-2 text-xs text-muted">
             <span class="flex items-center gap-0.5">
-              <UIcon name="i-lucide-heart" class="text-xs" />
+              <UIcon name="i-lucide-heart" class="text-xs" aria-hidden="true" />
               {{ w.likes }}
             </span>
             <span class="flex items-center gap-0.5">
-              <UIcon name="i-lucide-message-circle" class="text-xs" />
+              <UIcon name="i-lucide-message-circle" class="text-xs" aria-hidden="true" />
               {{ w.comments }}
             </span>
           </div>

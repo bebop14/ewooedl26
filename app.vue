@@ -1,5 +1,9 @@
 <template>
   <UApp>
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-default focus:text-highlighted focus:rounded-md focus:ring-2 focus:ring-primary"
+    >메인 콘텐츠로 이동</a>
     <UHeader v-if="user" to="/">
       <template #title>
         <span class="hidden sm:inline">EDL 이우애용 2026 오운완</span>
@@ -26,7 +30,7 @@
                 size="2xs"
               />
               <span>{{ user.displayName || '사용자' }}</span>
-              <UIcon name="i-lucide-chevron-down" class="size-4" />
+              <UIcon name="i-lucide-chevron-down" class="size-4" aria-hidden="true" />
             </UButton>
           </UDropdownMenu>
         </div>
@@ -52,7 +56,9 @@
       </template>
     </UHeader>
 
-    <NuxtPage />
+    <main id="main-content">
+      <NuxtPage />
+    </main>
 
     <!-- 모바일 FAB: 운동 기록하기 -->
     <NuxtLink

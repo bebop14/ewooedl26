@@ -26,8 +26,8 @@
     <section>
       <h2 class="text-lg font-semibold mb-4">그룹 탐색</h2>
 
-      <div v-if="groupStore.loading" class="text-center py-12">
-        <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
+      <div v-if="groupStore.loading" class="text-center py-12" role="status" aria-label="로딩 중">
+        <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" aria-hidden="true" />
       </div>
 
       <UEmpty

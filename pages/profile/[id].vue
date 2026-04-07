@@ -1,7 +1,7 @@
 <template>
   <UContainer class="py-8">
-    <div v-if="loading" class="flex justify-center py-24">
-      <UIcon name="i-lucide-loader-circle" class="text-4xl animate-spin text-muted" />
+    <div v-if="loading" class="flex justify-center py-24" role="status" aria-label="로딩 중">
+      <UIcon name="i-lucide-loader-circle" class="text-4xl animate-spin text-muted" aria-hidden="true" />
     </div>
 
     <div v-else-if="profile">
@@ -79,28 +79,34 @@
       </UCard>
 
       <!-- 운동 통계 -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <UCard>
-          <div class="text-center">
-            <UIcon name="i-lucide-flame" class="text-2xl text-blue-500 mb-2" />
-            <p class="text-xs text-muted">총 운동</p>
-            <p class="text-2xl font-bold">{{ profile.stats.totalWorkouts }}회</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <!-- 연속 운동일 — 히어로 -->
+        <div class="col-span-2 md:col-span-1 bg-primary rounded-xl p-4 relative overflow-hidden">
+          <p class="text-xs font-semibold uppercase tracking-wider text-inverted/60 mb-1">연속 운동</p>
+          <div class="flex items-end gap-1">
+            <span class="text-5xl font-black text-inverted leading-none tracking-tighter">{{ profile.stats.currentStreak }}</span>
+            <span class="text-base text-inverted/70 mb-0.5">일</span>
           </div>
-        </UCard>
-        <UCard>
-          <div class="text-center">
-            <UIcon name="i-lucide-zap" class="text-2xl text-green-500 mb-2" />
-            <p class="text-xs text-muted">연속 운동</p>
-            <p class="text-2xl font-bold">{{ profile.stats.currentStreak }}일</p>
+          <UIcon name="i-lucide-zap" class="absolute right-3 bottom-2 text-inverted/15 text-5xl" aria-hidden="true" />
+        </div>
+
+        <!-- 총 운동 수 -->
+        <div class="bg-elevated rounded-xl p-4">
+          <p class="text-xs text-muted mb-1">총 운동</p>
+          <div class="flex items-end gap-1">
+            <span class="text-4xl font-black text-highlighted leading-none tracking-tighter">{{ profile.stats.totalWorkouts }}</span>
+            <span class="text-sm text-muted mb-0.5">회</span>
           </div>
-        </UCard>
-        <UCard>
-          <div class="text-center">
-            <UIcon name="i-lucide-trophy" class="text-2xl text-amber-500 mb-2" />
-            <p class="text-xs text-muted">최장 연속</p>
-            <p class="text-2xl font-bold">{{ profile.stats.longestStreak }}일</p>
+        </div>
+
+        <!-- 최장 연속일 -->
+        <div class="bg-elevated rounded-xl p-4">
+          <p class="text-xs text-muted mb-1">최장 연속</p>
+          <div class="flex items-end gap-1">
+            <span class="text-4xl font-black text-highlighted leading-none tracking-tighter">{{ profile.stats.longestStreak }}</span>
+            <span class="text-sm text-muted mb-0.5">일</span>
           </div>
-        </UCard>
+        </div>
       </div>
     </div>
 

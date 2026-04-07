@@ -16,20 +16,20 @@
       <!-- 내용 -->
       <div class="flex-1 min-w-0">
         <h4 class="font-semibold">{{ event.title }}</h4>
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500 mt-1">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted mt-1">
           <span class="flex items-center gap-1">
-            <UIcon name="i-lucide-clock" class="text-xs" />
+            <UIcon name="i-lucide-clock" class="text-xs" aria-hidden="true" />
             {{ formattedDate }}
           </span>
           <span v-if="event.location" class="flex items-center gap-1">
-            <UIcon name="i-lucide-map-pin" class="text-xs" />
+            <UIcon name="i-lucide-map-pin" class="text-xs" aria-hidden="true" />
             {{ event.location }}
           </span>
         </div>
-        <p v-if="event.description" class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+        <p v-if="event.description" class="text-sm text-muted mt-2">
           {{ event.description }}
         </p>
-        <p class="text-xs text-gray-400 mt-2">{{ event.createdByName }}</p>
+        <p class="text-xs text-muted mt-2">{{ event.createdByName }}</p>
       </div>
 
       <!-- 삭제 버튼 (작성자만) -->

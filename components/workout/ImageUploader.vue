@@ -1,7 +1,7 @@
 <template>
   <div
     class="relative border-2 border-dashed rounded-lg transition-colors cursor-pointer"
-    :class="isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' : 'border-gray-300 dark:border-gray-600'"
+    :class="isDragging ? 'border-primary bg-primary/5' : 'border-default'"
     @click="openFileDialog"
     @dragover.prevent="isDragging = true"
     @dragleave="isDragging = false"
@@ -22,9 +22,9 @@
 
     <!-- 빈 상태 -->
     <div v-else class="flex flex-col items-center justify-center py-12 px-4">
-      <UIcon name="i-lucide-image-plus" class="text-4xl text-gray-400 mb-3" />
-      <p class="text-sm text-gray-500 dark:text-gray-400">이미지를 드래그하거나 클릭하세요</p>
-      <p class="text-xs text-gray-400 mt-1">JPG, PNG (최대 10MB)</p>
+      <UIcon name="i-lucide-image-plus" class="text-4xl text-muted mb-3" />
+      <p class="text-sm text-muted">이미지를 드래그하거나 클릭하세요</p>
+      <p class="text-xs text-muted mt-1">JPG, PNG (최대 10MB)</p>
     </div>
 
     <input

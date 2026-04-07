@@ -2,22 +2,27 @@
   <UContainer class="py-8">
     <h1 class="text-2xl font-bold mb-6">종합 순위</h1>
 
-    <!-- 전체 회원 운동 현황 -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
-      <UCard>
-        <div class="text-center">
-          <UIcon name="i-lucide-users" class="text-2xl text-primary mb-1" />
-          <p class="text-2xl font-bold">{{ totalMembers }}</p>
-          <p class="text-sm text-muted">총 회원수</p>
+    <!-- 전체 현황 -->
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <!-- 누적 운동 횟수 — 히어로 -->
+      <div class="bg-primary rounded-xl p-4 relative overflow-hidden">
+        <p class="text-xs font-semibold uppercase tracking-wider text-inverted/60 mb-1">누적 운동</p>
+        <div class="flex items-end gap-1">
+          <span class="text-5xl font-black text-inverted leading-none tracking-tighter">{{ totalAllWorkouts }}</span>
+          <span class="text-base text-inverted/70 mb-0.5">회</span>
         </div>
-      </UCard>
-      <UCard>
-        <div class="text-center">
-          <UIcon name="i-lucide-dumbbell" class="text-2xl text-primary mb-1" />
-          <p class="text-2xl font-bold">{{ totalAllWorkouts }}</p>
-          <p class="text-sm text-muted">총 운동 횟수</p>
+        <UIcon name="i-lucide-dumbbell" class="absolute right-3 bottom-2 text-inverted/15 text-5xl" aria-hidden="true" />
+      </div>
+
+      <!-- 총 회원수 -->
+      <div class="bg-elevated rounded-xl p-4">
+        <p class="text-xs text-muted mb-1">총 회원</p>
+        <div class="flex items-end gap-1">
+          <span class="text-5xl font-black text-highlighted leading-none tracking-tighter">{{ totalMembers }}</span>
+          <span class="text-base text-muted mb-0.5">명</span>
         </div>
-      </UCard>
+        <UIcon name="i-lucide-users" class="text-muted text-xl mt-2" aria-hidden="true" />
+      </div>
     </div>
 
     <div class="flex gap-2 mb-6">
@@ -38,8 +43,8 @@
       class="mb-6"
     />
 
-    <div v-if="socialStore.rankingsLoading" class="text-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
+    <div v-if="socialStore.rankingsLoading" class="text-center py-12" role="status" aria-label="로딩 중">
+      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" aria-hidden="true" />
     </div>
 
     <RankingTable

@@ -1,7 +1,7 @@
 <template>
   <UContainer class="py-8">
-    <div v-if="loading" class="text-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
+    <div v-if="loading" class="text-center py-12" role="status" aria-label="로딩 중">
+      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" aria-hidden="true" />
     </div>
 
     <template v-else-if="group">
@@ -127,7 +127,7 @@
           <h2 class="text-lg font-semibold">멤버 ({{ groupStore.groupMembers.length }}명)</h2>
         </template>
 
-        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+        <div class="divide-y divide-default">
           <div
             v-for="member in groupStore.groupMembers"
             :key="member.id"
@@ -141,7 +141,7 @@
             <div class="flex-1">
               <NuxtLink
                 :to="`/profile/${member.userId}`"
-                class="font-medium hover:text-primary-500"
+                class="font-medium hover:text-primary"
               >
                 {{ member.displayName }}
               </NuxtLink>

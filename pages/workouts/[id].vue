@@ -15,8 +15,8 @@
       />
     </div>
 
-    <div v-if="loading" class="text-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
+    <div v-if="loading" class="text-center py-12" role="status" aria-label="로딩 중">
+      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" aria-hidden="true" />
     </div>
 
     <template v-else-if="workout">
@@ -54,7 +54,7 @@
           @toggled="(d: number) => { if (workout) workout.likes += d }"
         />
         <div class="flex items-center gap-1 text-muted">
-          <UIcon name="i-lucide-message-circle" />
+          <UIcon name="i-lucide-message-circle" aria-hidden="true" />
           <span>{{ workout.comments }}</span>
         </div>
       </div>
@@ -62,7 +62,7 @@
       <!-- 운동 정보 (메모/해시태그가 있을 때만 카드 표시) -->
       <UCard v-if="workout.memo || workout.hashtags.length" class="mb-4">
         <!-- 메모 -->
-        <p v-if="workout.memo" class="text-gray-700 dark:text-gray-300">{{ workout.memo }}</p>
+        <p v-if="workout.memo" class="text-toned">{{ workout.memo }}</p>
 
         <!-- 해시태그 -->
         <div v-if="workout.hashtags.length" class="flex flex-wrap gap-2" :class="workout.memo ? 'mt-3' : ''">

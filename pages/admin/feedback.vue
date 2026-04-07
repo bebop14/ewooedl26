@@ -2,11 +2,11 @@
   <UContainer class="py-8">
     <h1 class="text-2xl font-bold mb-6">피드백 관리</h1>
 
-    <div v-if="loading" class="text-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" />
+    <div v-if="loading" class="text-center py-12" role="status" aria-label="로딩 중">
+      <UIcon name="i-lucide-loader-circle" class="text-3xl animate-spin" aria-hidden="true" />
     </div>
 
-    <div v-else-if="feedbacks.length === 0" class="text-center py-12 text-gray-500">
+    <div v-else-if="feedbacks.length === 0" class="text-center py-12 text-muted">
       피드백이 없습니다.
     </div>
 
@@ -15,7 +15,7 @@
         <div class="flex justify-between items-start">
           <div>
             <p class="font-semibold">{{ fb.userName }}</p>
-            <p class="text-sm text-gray-500">{{ formatDate(fb.createdAt) }}</p>
+            <p class="text-sm text-muted">{{ formatDate(fb.createdAt) }}</p>
           </div>
         </div>
         <p class="mt-2 whitespace-pre-wrap">{{ fb.content }}</p>

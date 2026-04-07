@@ -11,14 +11,14 @@
           class="flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-colors"
           :class="form.workoutType === type.value
             ? 'border-primary bg-primary/10 text-primary'
-            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'"
+            : 'border-default hover:border-accented'"
           @click="form.workoutType = type.value"
         >
           <UIcon :name="type.icon" class="text-xl" />
           <span class="text-xs">{{ type.label }}</span>
         </button>
       </div>
-      <p v-if="errors.workoutType" class="text-sm text-red-500 mt-1">{{ errors.workoutType }}</p>
+      <p v-if="errors.workoutType" class="text-sm text-error mt-1">{{ errors.workoutType }}</p>
     </div>
 
     <!-- 운동 날짜 -->
@@ -37,7 +37,7 @@
     <div>
       <label class="block text-sm font-medium mb-2">인증샷 *</label>
       <WorkoutImageUploader v-model="form.imageFile" />
-      <p v-if="errors.imageFile" class="text-sm text-red-500 mt-1">{{ errors.imageFile }}</p>
+      <p v-if="errors.imageFile" class="text-sm text-error mt-1">{{ errors.imageFile }}</p>
     </div>
 
     <!-- 메모 -->
@@ -60,7 +60,12 @@
           color="info"
           variant="subtle"
           class="cursor-pointer"
+          :aria-label="`${tag} 태그 삭제`"
+          role="button"
+          tabindex="0"
           @click="removeTag(idx)"
+          @keydown.enter.prevent="removeTag(idx)"
+          @keydown.space.prevent="removeTag(idx)"
         >
           #{{ tag }} &times;
         </UBadge>

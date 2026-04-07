@@ -3,15 +3,16 @@
     <template #header>
       <div class="flex items-center justify-between">
         <h3 class="font-semibold flex items-center gap-2">
-          <UIcon name="i-lucide-calendar" class="text-lg" />
+          <UIcon name="i-lucide-calendar" class="text-lg" aria-hidden="true" />
           다가오는 일정
         </h3>
         <UButton label="전체 보기" variant="link" size="xs" to="/calendar" />
       </div>
     </template>
 
-    <div v-if="events.length === 0" class="text-center py-4 text-gray-500 text-sm">
-      예정된 일정이 없습니다.
+    <div v-if="events.length === 0" class="text-center py-4 flex flex-col items-center gap-2">
+      <p class="text-sm text-muted">예정된 일정이 없어요</p>
+      <UButton label="일정 추가하기" to="/calendar" size="xs" variant="soft" icon="i-lucide-calendar-plus" />
     </div>
 
     <div v-else class="space-y-3">
@@ -25,25 +26,25 @@
         <div
           class="flex-shrink-0 w-11 text-center rounded-lg py-1"
           :class="event.type === 'event'
-            ? 'bg-blue-100 dark:bg-blue-900'
-            : 'bg-green-100 dark:bg-green-900'"
+            ? 'bg-info/15'
+            : 'bg-success/15'"
         >
-          <p class="text-[0.65rem] font-medium text-gray-500">{{ formatMonth(event) }}</p>
+          <p class="text-[0.65rem] font-medium text-muted">{{ formatMonth(event) }}</p>
           <p class="text-lg font-bold leading-tight">{{ formatDay(event) }}</p>
         </div>
 
         <!-- 내용 -->
         <div class="flex-1 min-w-0">
-          <p class="font-medium text-sm group-hover:text-blue-500 transition-colors truncate">
+          <p class="font-medium text-sm group-hover:text-primary transition-colors truncate">
             {{ event.title }}
           </p>
-          <div class="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+          <div class="flex items-center gap-2 text-xs text-muted mt-0.5">
             <span class="flex items-center gap-0.5">
-              <UIcon name="i-lucide-clock" class="text-[0.65rem]" />
+              <UIcon name="i-lucide-clock" class="text-[0.65rem]" aria-hidden="true" />
               {{ formatTime(event) }}
             </span>
             <span v-if="event.location" class="flex items-center gap-0.5 truncate">
-              <UIcon name="i-lucide-map-pin" class="text-[0.65rem]" />
+              <UIcon name="i-lucide-map-pin" class="text-[0.65rem]" aria-hidden="true" />
               {{ event.location }}
             </span>
           </div>

@@ -5,10 +5,10 @@
     :class="isMe ? 'bg-primary/10 border-l-2 border-primary rounded-lg' : ''"
   >
     <div class="w-8 text-center font-bold flex-shrink-0">
-      <span v-if="rank === 1" class="text-lg">🥇</span>
-      <span v-else-if="rank === 2" class="text-lg">🥈</span>
-      <span v-else-if="rank === 3" class="text-lg">🥉</span>
-      <span v-else class="text-gray-500">{{ rank }}</span>
+      <span v-if="rank === 1" class="text-lg" aria-label="1위">🥇</span>
+      <span v-else-if="rank === 2" class="text-lg" aria-label="2위">🥈</span>
+      <span v-else-if="rank === 3" class="text-lg" aria-label="3위">🥉</span>
+      <span v-else class="text-muted" :aria-label="`${rank}위`">{{ rank }}</span>
     </div>
 
     <UAvatar :src="user.photoURL || undefined" :alt="user.displayName" size="sm" />

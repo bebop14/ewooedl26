@@ -2,7 +2,7 @@
   <UCard>
     <template #header>
       <div class="flex items-center gap-2">
-        <UIcon name="i-lucide-bar-chart-3" class="text-lg text-primary" />
+        <UIcon name="i-lucide-bar-chart-3" class="text-lg text-primary" aria-hidden="true" />
         <h3 class="text-lg font-semibold">운동 종류별 누적 기록</h3>
         <div class="flex-1" />
         <UButton
@@ -16,7 +16,7 @@
 
     <div class="space-y-4">
       <div v-for="item in gaugeItems" :key="item.value" class="flex items-center gap-3">
-        <UIcon :name="item.icon" class="text-xl shrink-0" />
+        <UIcon :name="item.icon" class="text-xl shrink-0" aria-hidden="true" />
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-center mb-1">
             <span class="text-sm font-medium">{{ item.label }}</span>
@@ -24,9 +24,9 @@
               {{ item.goal ? `${item.count} / ${item.goal}회` : `${item.count}회` }}
             </span>
           </div>
-          <div class="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+          <div class="h-3 w-full rounded-full bg-accented overflow-hidden">
             <div
-              class="h-full rounded-full transition-all duration-500"
+              class="h-full rounded-full transition-[width] duration-500 ease-out"
               :style="{ width: item.percent + '%', backgroundColor: item.color }"
             />
           </div>

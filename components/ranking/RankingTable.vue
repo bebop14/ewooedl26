@@ -1,9 +1,11 @@
 <template>
-  <div v-if="sortedUsers.length === 0" class="text-center py-12 text-gray-500">
-    아직 순위 데이터가 없습니다.
+  <div v-if="sortedUsers.length === 0" class="text-center py-12 flex flex-col items-center gap-2">
+    <p class="text-muted">아직 기록이 없어요</p>
+    <p class="text-xs text-muted">첫 번째로 운동을 기록하고 1위를 차지하세요!</p>
+    <UButton label="운동 기록하기" to="/workouts/new" size="xs" variant="soft" icon="i-lucide-plus" class="mt-1" />
   </div>
 
-  <div v-else class="divide-y divide-gray-800">
+  <div v-else class="divide-y divide-default">
     <RankingRow
       v-for="{ user: u, rank } in paginatedUsers"
       :key="u.userId"
@@ -17,15 +19,15 @@
     <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 pt-4">
       <UButton
         icon="i-lucide-chevron-left"
-        size="xs"
+        size="sm"
         variant="outline"
         :disabled="page === 1"
         @click="page--"
       />
-      <span class="text-sm text-gray-400">{{ page }} / {{ totalPages }}</span>
+      <span class="text-sm text-muted">{{ page }} / {{ totalPages }}</span>
       <UButton
         icon="i-lucide-chevron-right"
-        size="xs"
+        size="sm"
         variant="outline"
         :disabled="page === totalPages"
         @click="page++"

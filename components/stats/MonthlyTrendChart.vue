@@ -3,7 +3,7 @@
     <template #header>
       <h3 class="text-lg font-semibold">최근 6개월 운동 추이</h3>
     </template>
-    <div class="h-64" role="img" aria-label="최근 6개월 운동 추이 차트">
+    <div class="h-52 md:h-72" role="img" aria-label="최근 6개월 운동 추이 차트">
       <Line v-if="loaded && hasData" :data="chartData" :options="chartOptions" />
       <div v-else-if="!loaded" class="h-full flex items-center justify-center">
         <UIcon name="i-lucide-loader-circle" class="text-2xl animate-spin text-muted" />
@@ -17,22 +17,12 @@
 
 <script setup lang="ts">
 import { Line } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Filler,
-} from 'chart.js'
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler)
 
 const workoutStore = useWorkoutStore()
 const loaded = ref(false)
 const hasData = ref(false)
+
+const { tickColor, gridColor, primaryColor, primaryFill, pointBorderColor } = useChartTheme()
 
 const chartData = ref({
   labels: [] as string[],
@@ -40,19 +30,17 @@ const chartData = ref({
     {
       label: '운동 횟수',
       data: [] as number[],
-      borderColor: '#10B981',
-      backgroundColor: 'rgba(16, 185, 129, 0.15)',
+      borderColor: primaryColor.value,
+      backgroundColor: primaryFill.value,
       fill: true,
       tension: 0.3,
-      pointBackgroundColor: '#10B981',
-      pointBorderColor: '#fff',
+      pointBackgroundColor: primaryColor.value,
+      pointBorderColor: pointBorderColor.value,
       pointBorderWidth: 2,
       pointRadius: 5,
     },
   ],
 })
-
-const { tickColor, gridColor } = useChartTheme()
 
 const chartOptions = computed(() => ({
   responsive: true,
@@ -86,5 +74,14 @@ onMounted(async () => {
     ],
   }
   loaded.value = true
+})
+
+watch([primaryColor, primaryFill, pointBorderColor], ([primary, fill, border]) => {
+  const ds = chartData.value.datasets[0]
+  if (!ds) return
+  ds.borderColor = primary
+  ds.backgroundColor = fill
+  ds.pointBackgroundColor = primary
+  ds.pointBorderColor = border
 })
 </script>

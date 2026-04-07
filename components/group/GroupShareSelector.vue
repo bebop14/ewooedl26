@@ -10,8 +10,8 @@
         type="button"
         class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-colors text-sm"
         :class="isSelected(group.id)
-          ? 'border-primary-500 bg-primary-50 dark:bg-primary-950 text-primary-600'
-          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'"
+          ? 'border-primary bg-primary/10 text-primary'
+          : 'border-default hover:border-accented'"
         @click="toggleGroup(group.id)"
       >
         <UAvatar
@@ -28,14 +28,14 @@
         <UIcon
           v-if="isSelected(group.id)"
           name="i-lucide-check"
-          class="text-primary-500"
+          class="text-primary"
         />
       </button>
     </div>
 
     <p v-if="groupStore.myGroups.length === 0" class="text-sm text-muted py-4 text-center">
       아직 가입한 그룹이 없습니다.
-      <NuxtLink to="/groups" class="text-primary-500 hover:underline">
+      <NuxtLink to="/groups" class="text-primary hover:underline">
         그룹 둘러보기
       </NuxtLink>
     </p>

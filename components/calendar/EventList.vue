@@ -13,8 +13,8 @@
       </UBadge>
     </h3>
 
-    <div v-if="displayedEvents.length === 0" class="text-center py-8 text-gray-500 text-sm">
-      {{ selectedDate ? '선택한 날짜에 일정이 없습니다.' : '이번 달 등록된 일정이 없습니다.' }}
+    <div v-if="displayedEvents.length === 0" class="text-center py-8 text-muted text-sm">
+      {{ selectedDate ? '이 날 일정이 없어요. 위 + 버튼으로 추가해보세요.' : '이번 달 일정이 없어요. 함께할 운동 일정을 잡아볼까요?' }}
     </div>
 
     <div v-else class="space-y-3">

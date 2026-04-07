@@ -6,17 +6,18 @@
           :src="workout.thumbnailUrl"
           :alt="typeLabel"
           class="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+          loading="lazy"
         />
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
-            <UIcon :name="typeIcon" class="text-lg text-blue-500" />
+            <UIcon :name="typeIcon" class="text-lg text-info" />
             <span class="font-medium">{{ typeLabel }}</span>
           </div>
-          <p v-if="workout.memo" class="text-sm text-gray-600 dark:text-gray-400 truncate">
+          <p v-if="workout.memo" class="text-sm text-muted truncate">
             {{ workout.memo }}
           </p>
           <div class="flex items-center gap-2 mt-1">
-            <span class="text-xs text-gray-400">{{ relativeTime }}</span>
+            <span class="text-xs text-muted">{{ relativeTime }}</span>
             <div v-if="workout.hashtags.length" class="flex gap-1">
               <UBadge
                 v-for="tag in workout.hashtags.slice(0, 3)"
@@ -28,13 +29,13 @@
                 #{{ tag }}
               </UBadge>
             </div>
-            <div class="flex items-center gap-3 ml-auto text-xs text-gray-400">
+            <div class="flex items-center gap-3 ml-auto text-xs text-muted">
               <span class="flex items-center gap-1">
-                <UIcon name="i-lucide-heart" class="text-sm" />
+                <UIcon name="i-lucide-heart" class="text-sm" aria-hidden="true" />
                 {{ workout.likes }}
               </span>
               <span class="flex items-center gap-1">
-                <UIcon name="i-lucide-message-circle" class="text-sm" />
+                <UIcon name="i-lucide-message-circle" class="text-sm" aria-hidden="true" />
                 {{ workout.comments }}
               </span>
             </div>

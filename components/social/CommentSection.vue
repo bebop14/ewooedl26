@@ -4,11 +4,11 @@
       <h3 class="font-semibold">댓글</h3>
     </template>
 
-    <div v-if="socialStore.commentsLoading" class="text-center py-4">
-      <UIcon name="i-lucide-loader-circle" class="text-xl animate-spin" />
+    <div v-if="socialStore.commentsLoading" class="text-center py-4" role="status" aria-label="로딩 중">
+      <UIcon name="i-lucide-loader-circle" class="text-xl animate-spin" aria-hidden="true" />
     </div>
 
-    <div v-else-if="socialStore.comments.length === 0" class="text-center py-4 text-gray-500 text-sm">
+    <div v-else-if="socialStore.comments.length === 0" class="text-center py-4 text-muted text-sm">
       아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
     </div>
 
@@ -22,9 +22,9 @@
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
             <span class="font-medium text-sm">{{ comment.userName }}</span>
-            <span class="text-xs text-gray-400">{{ relativeTime(comment.createdAt) }}</span>
+            <span class="text-xs text-muted">{{ relativeTime(comment.createdAt) }}</span>
           </div>
-          <p class="text-sm text-gray-700 dark:text-gray-300 mt-0.5">{{ comment.content }}</p>
+          <p class="text-sm text-toned mt-0.5">{{ comment.content }}</p>
         </div>
         <UButton
           v-if="isOwner(comment)"
@@ -49,6 +49,8 @@
       />
       <UButton
         icon="i-lucide-send"
+        size="md"
+        aria-label="댓글 등록"
         :loading="submitting"
         :disabled="!newComment.trim()"
         @click="handleAdd"

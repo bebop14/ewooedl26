@@ -30,7 +30,7 @@
               @click="form.type = t.value"
             />
           </div>
-          <p v-if="errors.type" class="text-sm text-red-500 mt-1">{{ errors.type }}</p>
+          <p v-if="errors.type" class="text-sm text-error mt-1">{{ errors.type }}</p>
         </div>
 
         <!-- 시작 날짜/시간 -->
