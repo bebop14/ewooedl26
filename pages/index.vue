@@ -76,13 +76,12 @@ const feedbackOpen = ref(false)
 async function loadDashboardData() {
   if (!user.value) return
 
+  // 운동 종류별 누적 기록(monthlyTypeCounts/monthlyGoals)은 DashboardWorkoutGaugeBar가 자체 로드
   const groupId = groupStore.currentGroupId
   const [, , top] = await Promise.all([
     workoutStore.fetchRecentWorkouts(5),
     eventStore.fetchUpcomingEvents(5, groupId),
     workoutStore.fetchTopWorkoutType(),
-    workoutStore.fetchMonthlyTypeCounts(),
-    workoutStore.fetchMonthlyGoals(),
     workoutStore.recalculateUserStats(),
   ])
   topWorkout.value = top ?? null

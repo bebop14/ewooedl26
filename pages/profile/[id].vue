@@ -122,15 +122,20 @@
 </template>
 
 <script setup lang="ts">
+import type { UserProfile } from '~/stores/user'
+
 definePageMeta({ middleware: 'auth' })
 
 const route = useRoute()
 const userStore = useUserStore()
 const user = useCurrentUser()
-const { uploadProfileImage, uploading } = useImageUpload()
-const { userProfile: profile, loading } = storeToRefs(userStore)
+const { uploadProfileImage } = useImageUpload()
 
 const userId = route.params.id as string
+
+// 전역 userProfile(로그인 사용자)을 덮어쓰지 않도록 조회 결과는 로컬 상태로 보관
+const profile = ref<UserProfile | null>(null)
+const loading = ref(true)
 const editing = ref(false)
 const saving = ref(false)
 const imagePreview = ref<string | null>(null)
@@ -208,7 +213,21 @@ async function saveProfile() {
   }
 }
 
-onMounted(() => {
-  userStore.loadUserProfile(userId)
+onMounted(async () => {
+  loading.value = true
+  try {
+    if (isOwnProfile.value) {
+      // 내 프로필: 전역 스토어를 단일 소스로 사용 (편집 시 헤더 등과 동기화)
+      if (!userStore.userProfile) {
+        await userStore.loadUserProfile(userId)
+      }
+      profile.value = userStore.userProfile
+    } else {
+      // 타인 프로필: 전역 상태를 건드리지 않고 로컬로만 조회
+      profile.value = await userStore.fetchUserProfileById(userId)
+    }
+  } finally {
+    loading.value = false
+  }
 })
 </script>

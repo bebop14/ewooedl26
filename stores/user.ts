@@ -49,6 +49,18 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // 다른 사용자 프로필 조회 (전역 상태를 건드리지 않고 값만 반환)
+  const fetchUserProfileById = async (userId: string): Promise<UserProfile | null> => {
+    if (!db) return null
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId))
+      return userDoc.exists() ? (userDoc.data() as UserProfile) : null
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+      return null
+    }
+  }
+
   // 새 사용자 프로필 생성
   const createUserProfile = async (userId: string) => {
     if (!db || !currentUser.value) return
@@ -104,6 +116,7 @@ export const useUserStore = defineStore('user', () => {
     loading,
     isAdmin,
     loadUserProfile,
+    fetchUserProfileById,
     createUserProfile,
     updateStats,
     updateUserProfile,

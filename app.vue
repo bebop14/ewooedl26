@@ -34,13 +34,16 @@
             </UButton>
           </UDropdownMenu>
         </div>
-        <!-- 모바일: 아바타만 표시 -->
-        <UAvatar
-          :src="user.photoURL || undefined"
-          :alt="user.displayName || '사용자'"
-          size="sm"
-          class="sm:hidden"
-        />
+        <!-- 모바일: 아바타 탭 시 사용자 메뉴(프로필/관리자/로그아웃) -->
+        <UDropdownMenu :items="userMenuItems" class="sm:hidden">
+          <UButton variant="ghost" color="neutral" class="p-1" aria-label="사용자 메뉴">
+            <UAvatar
+              :src="user.photoURL || undefined"
+              :alt="user.displayName || '사용자'"
+              size="sm"
+            />
+          </UButton>
+        </UDropdownMenu>
       </template>
 
       <template #body>
@@ -51,8 +54,6 @@
         </div>
         <USeparator class="my-2" />
         <UNavigationMenu :items="navItems" orientation="vertical" class="w-full" />
-        <USeparator class="my-4" />
-        <UNavigationMenu :items="mobileUserMenuItems" orientation="vertical" class="w-full" />
       </template>
     </UHeader>
 
@@ -112,29 +113,6 @@ const userMenuItems = computed(() => {
     onSelect: () => handleSignOut(),
   })
   return [items]
-})
-
-const mobileUserMenuItems = computed(() => {
-  const items: any[] = [
-    {
-      label: '내 프로필',
-      icon: 'i-lucide-user',
-      to: user.value ? `/profile/${user.value.uid}` : undefined,
-    },
-  ]
-  if (userStore.isAdmin) {
-    items.push({
-      label: '관리자',
-      icon: 'i-lucide-shield',
-      to: '/admin',
-    })
-  }
-  items.push({
-    label: '로그아웃',
-    icon: 'i-lucide-log-out',
-    onSelect: () => handleSignOut(),
-  })
-  return items
 })
 
 // 로그인된 사용자의 프로필을 자동 로드 (관리자 메뉴 표시 등에 필요)
