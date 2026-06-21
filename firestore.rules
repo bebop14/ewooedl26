@@ -6,6 +6,18 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    // 그룹 생성자 여부 헬퍼
+    function isGroupCreator(groupId) {
+      return exists(/databases/$(database)/documents/groups/$(groupId))
+        && get(/databases/$(database)/documents/groups/$(groupId)).data.createdBy == request.auth.uid;
+    }
+
+    // 그룹 관리자 여부 헬퍼 (해당 그룹 멤버 문서의 role이 admin)
+    function isGroupAdmin(groupId) {
+      return exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid))
+        && get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role == 'admin';
+    }
+
     // 사용자
     match /users/{userId} {
       allow read: if request.auth != null;
@@ -36,12 +48,20 @@ service cloud.firestore {
       allow create, delete: if request.auth != null;
     }
 
+    // 운동 소유자 여부 헬퍼 (해당 운동이 존재하고 그 소유자가 요청자인지)
+    function isWorkoutOwner(workoutId) {
+      return exists(/databases/$(database)/documents/workouts/$(workoutId))
+        && get(/databases/$(database)/documents/workouts/$(workoutId)).data.userId == request.auth.uid;
+    }
+
     // 댓글
     match /comments/{commentId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
+      // 댓글 작성자 본인 또는 해당 운동 소유자가 삭제 가능
       allow delete: if request.auth != null
-        && resource.data.userId == request.auth.uid;
+        && (resource.data.userId == request.auth.uid
+            || isWorkoutOwner(resource.data.workoutId));
     }
 
     // 이벤트
@@ -56,18 +76,44 @@ service cloud.firestore {
     match /groups/{groupId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null
+      // 전체 수정/삭제는 생성자 또는 앱 관리자만,
+      // 단 가입/탈퇴/동기화로 인한 memberCount 단독 변경은 인증 사용자 허용
+      allow update: if request.auth != null
+        && (resource.data.createdBy == request.auth.uid
+            || isAppAdmin()
+            || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount']));
+      allow delete: if request.auth != null
         && (resource.data.createdBy == request.auth.uid || isAppAdmin());
 
       match /members/{memberId} {
         allow read: if request.auth != null;
-        allow write: if request.auth != null;
+        // 가입: 본인이 일반 멤버로 가입, 또는 그룹 생성자(최초 admin 등록)/관리자/앱관리자가 추가
+        allow create: if request.auth != null
+          && (
+            (request.auth.uid == memberId && request.resource.data.role == 'member')
+            || isGroupCreator(groupId)
+            || isGroupAdmin(groupId)
+            || isAppAdmin()
+          );
+        // 역할 변경: 그룹 관리자/생성자/앱 관리자만
+        allow update: if request.auth != null
+          && (isGroupCreator(groupId) || isGroupAdmin(groupId) || isAppAdmin());
+        // 탈퇴는 본인, 강퇴/그룹삭제는 그룹 관리자/생성자/앱 관리자
+        allow delete: if request.auth != null
+          && (request.auth.uid == memberId
+              || isGroupCreator(groupId) || isGroupAdmin(groupId) || isAppAdmin());
       }
     }
 
     match /feedback/{feedbackId} {
       allow create: if request.auth != null;
       allow read: if request.auth != null && isAppAdmin();
+    }
+
+    // members 컬렉션그룹 쿼리 허용 (내가 속한 그룹 자동 보정용)
+    // 컬렉션그룹 읽기는 재귀 와일드카드 규칙이 필요하다.
+    match /{path=**}/members/{memberId} {
+      allow read: if request.auth != null;
     }
   }
 }

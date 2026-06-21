@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {
-  collection, doc, addDoc, deleteDoc, getDoc, getDocs, setDoc, updateDoc,
+  collection, collectionGroup, doc, addDoc, deleteDoc, getDoc, getDocs, setDoc, updateDoc,
   query, where, orderBy, Timestamp, increment, arrayUnion,
 } from 'firebase/firestore'
 import type { Group, GroupMember, GroupFormData } from '~/types/group'
@@ -47,32 +47,58 @@ export const useGroupStore = defineStore('group', () => {
   }
 
   // 내가 속한 그룹 목록 가져오기
+  // 멤버십의 진실 소스는 groups/*/members 서브컬렉션이고, user.groupIds는 비정규화 캐시다.
+  // 둘이 어긋나면(drift) 사용자가 자기 그룹을 못 보게 되므로, 여기서 members를 함께 조회해 자동 보정한다.
   async function fetchMyGroups() {
     if (!db || !user.value) return
 
     loading.value = true
     try {
-      // 먼저 사용자 문서에서 groupIds 가져오기
-      const userDoc = await getDoc(doc(db, 'users', user.value.uid))
+      const uid = user.value.uid
 
-      // 사용자 문서가 없으면 빈 배열 반환
+      // 1) 사용자 문서의 비정규화 groupIds
+      const userDoc = await getDoc(doc(db, 'users', uid))
       if (!userDoc.exists()) {
         myGroups.value = []
         return
       }
+      const storedGroupIds: string[] = userDoc.data()?.groupIds ?? []
 
-      const userData = userDoc.data()
-      const groupIds = userData?.groupIds ?? []
+      // 2) 진실 소스: members 컬렉션그룹에서 실제 소속 그룹 수집
+      //    (인덱스 미배포 등으로 실패하면 storedGroupIds로 폴백)
+      let memberGroupIds: string[] = []
+      try {
+        const memberSnap = await getDocs(
+          query(collectionGroup(db, 'members'), where('userId', '==', uid)),
+        )
+        memberGroupIds = memberSnap.docs
+          .map(d => d.ref.parent.parent?.id)
+          .filter((id): id is string => !!id)
+      } catch (err) {
+        console.error('collectionGroup(members) 조회 실패 — storedGroupIds로 폴백:', err)
+      }
 
-      if (groupIds.length === 0) {
+      // 3) drift 자동 보정: members엔 있는데 user.groupIds엔 없는 그룹을 동기화
+      const missing = memberGroupIds.filter(id => !storedGroupIds.includes(id))
+      if (missing.length > 0) {
+        try {
+          await updateDoc(doc(db, 'users', uid), { groupIds: arrayUnion(...missing) })
+        } catch (err) {
+          console.error('groupIds 동기화 실패:', err)
+        }
+      }
+
+      // 4) 두 소스의 합집합으로 그룹 정보 조회
+      const allGroupIds = Array.from(new Set([...storedGroupIds, ...memberGroupIds]))
+      if (allGroupIds.length === 0) {
         myGroups.value = []
         return
       }
 
       // 그룹 정보 가져오기 (최대 30개씩 청크)
       const chunks: string[][] = []
-      for (let i = 0; i < groupIds.length; i += 30) {
-        chunks.push(groupIds.slice(i, i + 30))
+      for (let i = 0; i < allGroupIds.length; i += 30) {
+        chunks.push(allGroupIds.slice(i, i + 30))
       }
 
       const fetchedGroups: Group[] = []

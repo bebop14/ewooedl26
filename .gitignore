@@ -7,3 +7,5 @@ node_modules
 dist
 .agents
 skills
+skills-lock.json
+firebase-debug.log

@@ -372,12 +372,14 @@ export const useWorkoutStore = defineStore('workout', () => {
     const likesSnapshot = await getDocs(likesQuery)
     const likeDeletePromises = likesSnapshot.docs.map(d => deleteDoc(d.ref))
 
-    // 모든 삭제 작업 병렬 실행
+    // 댓글/좋아요를 먼저 삭제 (보안 규칙이 운동 소유자를 확인하려면 운동 문서가 아직 존재해야 함)
     await Promise.all([
       ...commentDeletePromises,
       ...likeDeletePromises,
-      deleteDoc(doc(db, 'workouts', workoutId)),
     ])
+
+    // 그 다음 운동 문서 삭제
+    await deleteDoc(doc(db, 'workouts', workoutId))
 
     // 사용자 통계 업데이트 - 남은 운동 기록 기반으로 재계산
     await recalculateUserStats()
